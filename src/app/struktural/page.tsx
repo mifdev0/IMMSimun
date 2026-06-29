@@ -67,11 +67,11 @@ export default function Struktural() {
                   </div>
                 )}
                 <div className="relative group">
-                  <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden bg-gradient-to-br from-[rgba(249,115,22,0.1)] to-[rgba(240,165,0,0.08)] shadow-[0_4px_20px_rgba(249,115,22,0.1)] group-hover:shadow-[0_8px_30px_rgba(249,115,22,0.2)] transition-all duration-300 flex items-center justify-center ring-4 ring-white">
+                  <div className="w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden bg-gradient-to-br from-[rgba(249,115,22,0.1)] to-[rgba(240,165,0,0.08)] shadow-[0_4px_20px_rgba(249,115,22,0.1)] group-hover:shadow-[0_8px_30px_rgba(249,115,22,0.2)] transition-all duration-300 flex items-center justify-center ring-4 ring-white">
                     {p.photo_url ? (
                       <img src={p.photo_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : (
-                      <span className="text-3xl md:text-4xl font-anton text-accent/50">{p.name.split(' ').pop()?.charAt(0)}</span>
+                      <span className="text-4xl md:text-5xl font-anton text-accent/50">{p.name.split(' ').pop()?.charAt(0)}</span>
                     )}
                   </div>
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white text-[9px] font-bold uppercase tracking-widest whitespace-nowrap shadow-md">
@@ -163,7 +163,7 @@ export default function Struktural() {
             {anggota.length > 0 && (
               <div>
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 text-center">Anggota</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
                   {anggota.map((m) => (
                     <MemberCard key={m.id} member={m} role="anggota" />
                   ))}
@@ -255,8 +255,8 @@ function TabNav({ activeTab, setActiveTab }: { activeTab: GroupKey; setActiveTab
 }
 
 function MemberCard({ member, role }: { member: { id: string; name: string; photo_url: string; position: string }; role: 'ketua' | 'sekretaris' | 'anggota' }) {
-  const size = role === 'ketua' ? 'w-20 h-20 md:w-24 md:h-24' : role === 'sekretaris' ? 'w-16 h-16 md:w-20 md:h-20' : 'w-14 h-14 md:w-16 md:h-16'
-  const fontSize = role === 'ketua' ? 'text-2xl md:text-3xl' : role === 'sekretaris' ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'
+  const size = role === 'ketua' ? 'w-28 h-28 md:w-32 md:h-32' : role === 'sekretaris' ? 'w-24 h-24 md:w-28 md:h-28' : 'w-20 h-20 md:w-24 md:h-24'
+  const fontSize = role === 'ketua' ? 'text-3xl md:text-4xl' : role === 'sekretaris' ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'
 
   return (
     <div className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-[#fff8f0] transition-colors">
