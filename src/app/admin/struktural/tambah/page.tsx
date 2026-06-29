@@ -9,6 +9,7 @@ import { savePengurus, getPengurus } from '@/lib/store'
 function Form() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const editId = searchParams.get('id')
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [nama, setNama] = useState('')
@@ -23,7 +24,20 @@ function Form() {
     const unit = searchParams.get('unit')
     if (group) setKelompok(group)
     if (unit) setBidangUnit(unit)
-  }, [searchParams])
+    if (editId) {
+      getPengurus().then((all) => {
+        const item = all.find((p) => p.id === editId)
+        if (item) {
+          setNama(item.name)
+          setJabatan(item.position)
+          setKelompok(item.group)
+          setBidangUnit(item.unit_name)
+          setPeriode(item.period)
+          setFoto(item.photo_url)
+        }
+      })
+    }
+  }, [searchParams, editId])
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -38,17 +52,18 @@ function Form() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const id = editId || String(Date.now())
     const existing = await getPengurus()
     const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
     await savePengurus({
-      id: String(Date.now()),
+      id,
       name: nama,
       position: jabatan,
       group: kelompok as any,
       unit_name: bidangUnit,
       photo_url: foto,
       period: periode,
-      order: maxOrder + 1,
+      order: editId ? (existing.find((p) => p.id === editId)?.order || maxOrder + 1) : maxOrder + 1,
     })
     router.push('/admin/struktural')
   }
@@ -58,10 +73,10 @@ function Form() {
       <Link href="/admin/struktural" className="inline-flex items-center gap-2 text-sm text-gray-muted hover:text-accent transition-colors mb-6">
         <ArrowLeft className="w-4 h-4" /> Kembali
       </Link>
-      <h1 className="text-2xl font-bold mb-6">Tambah Pengurus</h1>
+      <h1 className="text-xl md:text-2xl font-bold mb-6">{editId ? 'Edit Pengurus' : 'Tambah Pengurus'}</h1>
 
       <form onSubmit={handleSubmit} className="max-w-2xl">
-        <div className="bg-white rounded-2xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-4 md:space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama <span className="text-red-500">*</span></label>
@@ -168,7 +183,7 @@ function Form() {
         <div className="flex items-center gap-3 mt-6">
           <button type="submit"
             className="bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg active:scale-[0.98]">
-            Simpan
+            {editId ? 'Simpan Perubahan' : 'Simpan'}
           </button>
           <Link href="/admin/struktural"
             className="px-6 py-3 rounded-full border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-all">

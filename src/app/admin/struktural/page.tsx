@@ -197,9 +197,9 @@ export default function AdminStruktural() {
                   <td className="py-4 px-6 text-gray-muted">{p.unit_name || '-'}</td>
                   <td className="py-4 px-6 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button className="p-2 rounded-lg text-gray-400 hover:text-accent hover:bg-[rgba(249,115,22,0.06)] transition-all">
+                      <Link href={`/admin/struktural/tambah?id=${p.id}`} className="p-2 rounded-lg text-gray-400 hover:text-accent hover:bg-[rgba(249,115,22,0.06)] transition-all inline-flex">
                         <Pencil className="w-4 h-4" />
-                      </button>
+                      </Link>
                       <button onClick={() => handleDelete(p.id)} className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
                         <Trash2 className="w-4 h-4" />
                       </button>
