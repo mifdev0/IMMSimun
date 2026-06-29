@@ -2,9 +2,10 @@
 
 import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft, Upload, X } from 'lucide-react'
+import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
 import { savePengurus, getPengurus } from '@/lib/store'
+import ImageCropper from '@/components/ImageCropper'
 
 function Form() {
   const router = useRouter()
@@ -18,6 +19,7 @@ function Form() {
   const [bidangUnit, setBidangUnit] = useState('')
   const [periode, setPeriode] = useState('2025/2026')
   const [foto, setFoto] = useState('')
+  const [cropTarget, setCropTarget] = useState('')
 
   useEffect(() => {
     const group = searchParams.get('group')
@@ -44,7 +46,7 @@ function Form() {
     if (!file || file.size > 2 * 1024 * 1024) return
     const reader = new FileReader()
     reader.onload = () => {
-      if (reader.result) setFoto(reader.result as string)
+      if (reader.result) setCropTarget(reader.result as string)
     }
     reader.readAsDataURL(file)
     e.target.value = ''
@@ -165,15 +167,21 @@ function Form() {
               {!foto ? (
                 <div onClick={() => fileRef.current?.click()} className="border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 text-center hover:border-accent transition-colors cursor-pointer">
                   <Upload className="w-6 h-6 text-accent/60 mx-auto mb-1" />
-                  <p className="text-xs text-gray-muted">Klik untuk upload</p>
+                  <p className="text-xs text-gray-muted">Klik untuk upload & crop</p>
                 </div>
               ) : (
-                <div className="relative inline-block">
-                  <img src={foto} alt="" className="h-16 w-16 rounded-xl object-cover border border-gray-200" />
-                  <button type="button" onClick={() => setFoto('')}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70">
-                    <X className="w-3 h-3" />
-                  </button>
+                <div className="relative inline-block group">
+                  <img src={foto} alt="" className="h-16 w-16 rounded-full object-cover border-2 border-gray-200" />
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                    <button type="button" onClick={() => fileRef.current?.click()}
+                      className="text-white p-1 hover:bg-white/20 rounded-full transition-colors">
+                      <Crop className="w-4 h-4" />
+                    </button>
+                    <button type="button" onClick={() => setFoto('')}
+                      className="text-white p-1 hover:bg-white/20 rounded-full transition-colors">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -191,6 +199,16 @@ function Form() {
           </Link>
         </div>
       </form>
+
+      {cropTarget && (
+        <ImageCropper
+          image={cropTarget}
+          aspect={1}
+          cropShape="round"
+          onCropDone={(dataUrl) => { setFoto(dataUrl); setCropTarget('') }}
+          onCancel={() => setCropTarget('')}
+        />
+      )}
     </div>
   )
 }
