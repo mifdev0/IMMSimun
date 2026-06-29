@@ -84,19 +84,16 @@ CREATE POLICY "Public read galeri" ON galeri FOR SELECT USING (true);
 CREATE POLICY "Public read structural" ON structural FOR SELECT USING (true);
 CREATE POLICY "Public read prestasi" ON prestasi FOR SELECT USING (true);
 
--- Authenticated write access (admin only)
-CREATE POLICY "Admin write articles" ON articles FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Admin write article_images" ON article_images FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Admin write galeri" ON galeri FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Admin write structural" ON structural FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Admin write prestasi" ON prestasi FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "Admin read admins" ON admins FOR SELECT USING (auth.role() = 'authenticated');
+-- Public write access (auth dikelola oleh app, bukan Supabase Auth)
+CREATE POLICY "Public all articles" ON articles FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public all article_images" ON article_images FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public all galeri" ON galeri FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public all structural" ON structural FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Public all prestasi" ON prestasi FOR ALL USING (true) WITH CHECK (true);
 
 -- Storage bucket for images
 INSERT INTO storage.buckets (id, name, public) VALUES ('images', 'images', true)
 ON CONFLICT (id) DO NOTHING;
 
 CREATE POLICY "Public read images" ON storage.objects FOR SELECT USING (bucket_id = 'images');
-CREATE POLICY "Admin write images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'images' AND auth.role() = 'authenticated');
-CREATE POLICY "Admin update images" ON storage.objects FOR UPDATE USING (bucket_id = 'images' AND auth.role() = 'authenticated');
-CREATE POLICY "Admin delete images" ON storage.objects FOR DELETE USING (bucket_id = 'images' AND auth.role() = 'authenticated');
+CREATE POLICY "Public all images" ON storage.objects FOR ALL USING (true) WITH CHECK (true);
