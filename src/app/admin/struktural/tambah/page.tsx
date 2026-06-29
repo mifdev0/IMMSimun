@@ -1,0 +1,185 @@
+'use client'
+
+import { Suspense, useState, useEffect, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { ArrowLeft, Upload, X } from 'lucide-react'
+import Link from 'next/link'
+import { savePengurus, getPengurus } from '@/lib/store'
+
+function Form() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  const [nama, setNama] = useState('')
+  const [jabatan, setJabatan] = useState('')
+  const [kelompok, setKelompok] = useState('pimpinan')
+  const [bidangUnit, setBidangUnit] = useState('')
+  const [periode, setPeriode] = useState('2025/2026')
+  const [foto, setFoto] = useState('')
+
+  useEffect(() => {
+    const group = searchParams.get('group')
+    const unit = searchParams.get('unit')
+    if (group) setKelompok(group)
+    if (unit) setBidangUnit(unit)
+  }, [searchParams])
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || file.size > 2 * 1024 * 1024) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (reader.result) setFoto(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const existing = await getPengurus()
+    const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
+    await savePengurus({
+      id: String(Date.now()),
+      name: nama,
+      position: jabatan,
+      group: kelompok as any,
+      unit_name: bidangUnit,
+      photo_url: foto,
+      period: periode,
+      order: maxOrder + 1,
+    })
+    router.push('/admin/struktural')
+  }
+
+  return (
+    <div>
+      <Link href="/admin/struktural" className="inline-flex items-center gap-2 text-sm text-gray-muted hover:text-accent transition-colors mb-6">
+        <ArrowLeft className="w-4 h-4" /> Kembali
+      </Link>
+      <h1 className="text-2xl font-bold mb-6">Tambah Pengurus</h1>
+
+      <form onSubmit={handleSubmit} className="max-w-2xl">
+        <div className="bg-white rounded-2xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama <span className="text-red-500">*</span></label>
+              <input type="text" value={nama} onChange={(e) => setNama(e.target.value)} required
+                placeholder="Contoh: IMMawan Faris"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Jabatan <span className="text-red-500">*</span></label>
+              {kelompok === 'bidang' ? (
+                <select value={jabatan} onChange={(e) => setJabatan(e.target.value)} required
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                  <option value="">Pilih jabatan</option>
+                  <option value="Ketua Bidang">Ketua Bidang</option>
+                  <option value="Sekretaris Bidang">Sekretaris Bidang</option>
+                  <option value="Anggota Bidang">Anggota Bidang</option>
+                </select>
+              ) : kelompok === 'unit' ? (
+                <select value={jabatan} onChange={(e) => setJabatan(e.target.value)} required
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                  <option value="">Pilih jabatan</option>
+                  <option value="Ketua Unit">Ketua Unit</option>
+                  <option value="Sekretaris Unit">Sekretaris Unit</option>
+                  <option value="Anggota Unit">Anggota Unit</option>
+                </select>
+              ) : (
+                <input type="text" value={jabatan} onChange={(e) => setJabatan(e.target.value)} required
+                  placeholder="Contoh: Ketua Umum"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm" />
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Kelompok <span className="text-red-500">*</span></label>
+              <select value={kelompok} onChange={(e) => { setKelompok(e.target.value); setBidangUnit('') }}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                <option value="pimpinan">Pimpinan Umum</option>
+                <option value="bidang">Bidang</option>
+                <option value="unit">Unit Pembantu Pimpinan</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Bidang / Unit</label>
+              {kelompok === 'bidang' ? (
+                <select value={bidangUnit} onChange={(e) => setBidangUnit(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                  <option value="">Pilih bidang</option>
+                  <option value="Bidang Organisasi">Bidang Organisasi</option>
+                  <option value="Bidang Kader">Bidang Kader</option>
+                  <option value="Bidang HPKP">Bidang HPKP</option>
+                  <option value="Bidang RPK">Bidang RPK</option>
+                  <option value="Bidang SPM">Bidang SPM</option>
+                  <option value="Bidang IMMawati">Bidang IMMawati</option>
+                  <option value="Bidang TKK">Bidang TKK</option>
+                  <option value="Bidang Medkom">Bidang Medkom</option>
+                  <option value="Bidang SBO">Bidang SBO</option>
+                </select>
+              ) : kelompok === 'unit' ? (
+                <select value={bidangUnit} onChange={(e) => setBidangUnit(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                  <option value="">Pilih unit</option>
+                  <option value="LO BUMK">LO BUMK</option>
+                  <option value="LSO PUSAKA">LSO PUSAKA</option>
+                  <option value="LSO LENTERA">LSO LENTERA</option>
+                  <option value="LSO IMD">LSO IMD</option>
+                  <option value="LSO GARDA">LSO GARDA</option>
+                </select>
+              ) : (
+                <input type="text" value={bidangUnit} onChange={(e) => setBidangUnit(e.target.value)} readOnly
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-400 cursor-not-allowed" />
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Periode</label>
+              <input type="text" value={periode} onChange={(e) => setPeriode(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Foto <span className="text-gray-400 text-xs">(maks 2MB)</span></label>
+              <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+              {!foto ? (
+                <div onClick={() => fileRef.current?.click()} className="border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 text-center hover:border-accent transition-colors cursor-pointer">
+                  <Upload className="w-6 h-6 text-accent/60 mx-auto mb-1" />
+                  <p className="text-xs text-gray-muted">Klik untuk upload</p>
+                </div>
+              ) : (
+                <div className="relative inline-block">
+                  <img src={foto} alt="" className="h-16 w-16 rounded-xl object-cover border border-gray-200" />
+                  <button type="button" onClick={() => setFoto('')}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 mt-6">
+          <button type="submit"
+            className="bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg active:scale-[0.98]">
+            Simpan
+          </button>
+          <Link href="/admin/struktural"
+            className="px-6 py-3 rounded-full border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-all">
+            Batal
+          </Link>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+export default function TambahPengurus() {
+  return <Suspense><Form /></Suspense>
+}
