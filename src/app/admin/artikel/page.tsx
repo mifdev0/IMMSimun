@@ -65,8 +65,8 @@ export default function AdminArtikel() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl md:rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-xl md:rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50/50 border-b border-gray-100">

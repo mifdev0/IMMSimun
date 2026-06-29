@@ -48,12 +48,12 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-lg">Artikel Terbaru</h2>
-          <Link href="/admin/artikel" className="text-sm text-accent font-medium hover:underline">Lihat Semua</Link>
+          <h2 className="font-semibold text-base md:text-lg">Artikel Terbaru</h2>
+          <Link href="/admin/artikel" className="text-xs md:text-sm text-accent font-medium hover:underline">Lihat Semua</Link>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 text-left">

@@ -94,7 +94,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-[#f97316] to-[#f0a500] flex items-center justify-center text-white text-xs md:text-sm font-semibold shrink-0">SA</div>
           </div>
         </header>
-        <div className="flex-1 p-4 md:p-6">{children}</div>
+        <div className="flex-1 p-4 md:p-6 overflow-x-hidden max-w-full">{children}</div>
 
         {/* Mobile bottom nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-2 py-1 flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
