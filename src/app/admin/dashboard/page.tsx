@@ -32,18 +32,18 @@ export default function AdminDashboard() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mb-8">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}
-            className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_40px_rgba(249,115,22,0.1)] transition-all group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                <stat.icon className="w-6 h-6 text-white" />
+            className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_40px_rgba(249,115,22,0.1)] transition-all group">
+            <div className="flex items-center justify-between mb-3 md:mb-4">
+              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                <stat.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-accent transition-colors" />
+              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 text-gray-300 group-hover:text-accent transition-colors" />
             </div>
-            <p className="text-3xl font-bold">{stat.value}</p>
-            <p className="text-sm text-gray-muted">{stat.label}</p>
+            <p className="text-xl md:text-3xl font-bold">{stat.value}</p>
+            <p className="text-[11px] md:text-sm text-gray-muted">{stat.label}</p>
           </Link>
         ))}
       </div>

@@ -59,7 +59,7 @@ export default function BuatArtikel() {
       <h1 className="text-2xl font-bold mb-6">Buat Artikel Baru</h1>
 
       <form onSubmit={handleSubmit} className="max-w-3xl">
-        <div className="bg-white rounded-2xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-5">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)] space-y-4 md:space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Judul <span className="text-red-500">*</span></label>
             <input type="text" value={judul} onChange={(e) => setJudul(e.target.value)} required
