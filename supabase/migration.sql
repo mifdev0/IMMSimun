@@ -97,4 +97,6 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('images', 'images', true)
 ON CONFLICT (id) DO NOTHING;
 
 CREATE POLICY "Public read images" ON storage.objects FOR SELECT USING (bucket_id = 'images');
-CREATE POLICY "Admin write images" ON storage.objects FOR INSERT USING (bucket_id = 'images' AND auth.role() = 'authenticated');
+CREATE POLICY "Admin write images" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'images' AND auth.role() = 'authenticated');
+CREATE POLICY "Admin update images" ON storage.objects FOR UPDATE USING (bucket_id = 'images' AND auth.role() = 'authenticated');
+CREATE POLICY "Admin delete images" ON storage.objects FOR DELETE USING (bucket_id = 'images' AND auth.role() = 'authenticated');
