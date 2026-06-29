@@ -63,7 +63,7 @@ export default function EditArtikel() {
       published_at: tanggal,
       content: konten || '<p></p>',
       status,
-      images: images.map((url, i) => ({ id: String(i), artikel_id: article.id, image_url: url, order: i })),
+      images: images.map((url, i) => ({ id: article.id + '-' + i, artikel_id: article.id, image_url: url, order: i })),
     })
     router.push('/admin/artikel')
   }

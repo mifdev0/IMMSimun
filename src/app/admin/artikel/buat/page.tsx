@@ -46,7 +46,7 @@ export default function BuatArtikel() {
       content: konten || '<p></p>',
       status,
       created_at: new Date().toISOString(),
-      images: images.map((url, i) => ({ id: String(i), artikel_id: newId, image_url: url, order: i })),
+      images: images.map((url, i) => ({ id: newId + '-' + i, artikel_id: newId, image_url: url, order: i })),
     })
     router.push('/admin/artikel')
   }
