@@ -6,16 +6,12 @@ import { articles as staticArticles, galeri as staticGaleri, pengurus as staticP
 
 const supabase = createClient()
 
-function useFallback() {
-  return typeof window === 'undefined'
-}
-
 // --- ARTICLES ---
 
 export async function getArticles(): Promise<Artikel[]> {
   try {
     const { data } = await supabase.from('articles').select('*, images:article_images(*)').order('published_at', { ascending: false })
-    if (data) return data as Artikel[]
+    if (data && data.length > 0) return data as Artikel[]
   } catch {}
   return staticArticles
 }
@@ -25,12 +21,10 @@ export async function saveArticle(article: Artikel) {
   const { error } = await supabase.from('articles').upsert(articleData)
   if (error) throw error
 
-  if (images.length > 0) {
-    const { error: delErr } = await supabase.from('article_images').delete().eq('artikel_id', article.id)
-    if (delErr) throw delErr
+  await supabase.from('article_images').delete().eq('artikel_id', article.id)
+  if (images && images.length > 0) {
     for (const img of images) {
-      const { error: imgErr } = await supabase.from('article_images').upsert(img)
-      if (imgErr) throw imgErr
+      await supabase.from('article_images').upsert(img)
     }
   }
 }
@@ -44,7 +38,7 @@ export async function deleteArticle(id: string) {
 export async function getGaleri(): Promise<GaleriFoto[]> {
   try {
     const { data } = await supabase.from('galeri').select('*').order('created_at', { ascending: false })
-    if (data) return data as GaleriFoto[]
+    if (data && data.length > 0) return data as GaleriFoto[]
   } catch {}
   return staticGaleri
 }
@@ -63,7 +57,7 @@ export async function deleteGaleri(id: string) {
 export async function getPengurus(): Promise<Pengurus[]> {
   try {
     const { data } = await supabase.from('structural').select('*').order('order', { ascending: true })
-    if (data) return data as Pengurus[]
+    if (data && data.length > 0) return data as Pengurus[]
   } catch {}
   return staticPengurus
 }
@@ -82,7 +76,7 @@ export async function deletePengurus(id: string) {
 export async function getPrestasi(): Promise<Prestasi[]> {
   try {
     const { data } = await supabase.from('prestasi').select('*').order('order', { ascending: true })
-    if (data) return data as Prestasi[]
+    if (data && data.length > 0) return data as Prestasi[]
   } catch {}
   return staticPrestasi
 }
