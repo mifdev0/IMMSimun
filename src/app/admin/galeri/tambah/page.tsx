@@ -2,14 +2,16 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Upload, X } from 'lucide-react'
+import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
 import { saveGaleri } from '@/lib/store'
+import ImageCropper from '@/components/ImageCropper'
 
 export default function TambahFoto() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [image, setImage] = useState('')
+  const [cropTarget, setCropTarget] = useState('')
   const [caption, setCaption] = useState('')
   const [kategori, setKategori] = useState('Kaderisasi')
   const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0])
@@ -19,7 +21,7 @@ export default function TambahFoto() {
     if (!file || file.size > 5 * 1024 * 1024) return
     const reader = new FileReader()
     reader.onload = () => {
-      if (reader.result) setImage(reader.result as string)
+      if (reader.result) setCropTarget(reader.result as string)
     }
     reader.readAsDataURL(file)
     e.target.value = ''
@@ -54,16 +56,22 @@ export default function TambahFoto() {
             {!image ? (
               <div onClick={() => fileRef.current?.click()} className="border-2 border-dashed border-gray-200 rounded-xl p-10 text-center hover:border-accent transition-colors cursor-pointer">
                 <Upload className="w-10 h-10 text-accent/50 mx-auto mb-3" />
-                <p className="text-sm text-gray-muted">Klik untuk upload foto</p>
+                <p className="text-sm text-gray-muted">Klik untuk upload & crop foto</p>
                 <p className="text-xs text-gray-400 mt-1">Maks 5MB</p>
               </div>
             ) : (
-              <div className="relative inline-block">
+              <div className="relative inline-block group">
                 <img src={image} alt="Preview" className="max-h-64 rounded-xl border border-gray-200" />
-                <button type="button" onClick={() => setImage('')}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
+                  <button type="button" onClick={() => fileRef.current?.click()}
+                    className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-white/40 transition-all">
+                    <Crop className="w-4 h-4" />
+                  </button>
+                  <button type="button" onClick={() => setImage('')}
+                    className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center hover:bg-red-400 transition-all">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -106,6 +114,16 @@ export default function TambahFoto() {
           </Link>
         </div>
       </form>
+
+      {cropTarget && (
+        <ImageCropper
+          image={cropTarget}
+          aspect={16 / 9}
+          cropShape="rect"
+          onCropDone={(dataUrl) => { setImage(dataUrl); setCropTarget('') }}
+          onCancel={() => setCropTarget('')}
+        />
+      )}
     </div>
   )
 }
