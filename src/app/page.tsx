@@ -40,27 +40,27 @@ export default function Beranda() {
         <div className="absolute inset-0">
           <img src="/hero.jpeg" alt="Hero IMM Siti Munjiyah" className="w-full h-full object-cover" />
         </div>
-        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/55 via-black/35 to-black/65" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/45 via-black/60 to-black/75" />
         <div className="absolute inset-0 z-[1] bg-gradient-to-br from-[rgba(190,10,6,0.15)] to-[rgba(249,115,22,0.10)]" />
         <div className="absolute inset-0 z-[2] flex items-center justify-center pointer-events-none">
           <div
-            className="w-[70%] h-[60%]"
+            className="w-[80%] h-[70%]"
             style={{
-              background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 70%)',
-              filter: 'blur(8px)',
+              background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.50) 0%, transparent 70%)',
+              filter: 'blur(40px)',
             }}
           />
         </div>
         <div className="relative z-10 w-full flex justify-center px-8 md:px-14 lg:px-20 xl:px-28">
           <div className="max-w-4xl text-center">
-            <p className="text-[13px] text-white/75 font-normal tracking-[0.05em] mb-4">
+            <p className="text-[13px] text-white/75 font-normal tracking-[0.05em] mb-4" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
               Pimpinan Komisariat FKIP UMS · Surakarta
             </p>
-            <h1 className="font-bold text-white leading-[1.1] mb-5" style={{ fontSize: 'clamp(36px, 5vw, 72px)' }}>
+            <h1 className="font-bold text-white leading-[1.1] mb-5" style={{ fontSize: 'clamp(36px, 5vw, 72px)', textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
               PK IMM{' '}
               <span className="bg-gradient-to-r from-[#f97316] to-[#f0a500] bg-clip-text text-transparent">Siti Munjiyah</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
               Mewujudkan kader pendidik yang unggul dalam{' '}
               <span className="text-[#f0a500] font-semibold">intelektualitas</span>,{' '}
               <span className="text-[#f0a500] font-semibold">humanitas</span>, dan{' '}
