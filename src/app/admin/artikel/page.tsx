@@ -7,6 +7,7 @@ import { getArticles, deleteArticle } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
 import ConfirmModal from '@/components/ConfirmModal'
 import LoadingOverlay from '@/components/LoadingOverlay'
+import Pagination from '@/components/Pagination'
 import { showToast } from '@/components/Toast'
 
 export default function AdminArtikel() {
@@ -19,6 +20,8 @@ export default function AdminArtikel() {
   }, [])
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'published'>('all')
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 20
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -54,6 +57,8 @@ export default function AdminArtikel() {
     const matchStatus = filterStatus === 'all' || a.status === filterStatus
     return matchSearch && matchStatus
   })
+  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
   return (
     <div>
@@ -68,12 +73,12 @@ export default function AdminArtikel() {
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input type="text" placeholder="Cari artikel..." value={search} onChange={(e) => setSearch(e.target.value)}
+          <input type="text" placeholder="Cari artikel..." value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm" />
         </div>
         <div className="flex gap-2">
           {(['all', 'draft', 'published'] as const).map((s) => (
-            <button key={s} onClick={() => setFilterStatus(s)}
+            <button key={s} onClick={() => { setFilterStatus(s); setPage(1) }}
               className={`px-3 md:px-4 py-2 rounded-full text-[11px] md:text-xs font-medium transition-all ${
                 filterStatus === s
                   ? 'bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white'
@@ -99,7 +104,7 @@ export default function AdminArtikel() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.map((a) => (
+              {paginated.map((a) => (
                 <tr key={a.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="py-3 md:py-4 px-4 md:px-6 font-medium text-xs md:text-sm">{a.title}</td>
                   <td className="py-3 md:py-4 px-4 md:px-6 hidden md:table-cell">
@@ -134,6 +139,8 @@ export default function AdminArtikel() {
           <div className="text-center py-12 text-gray-muted text-sm">Tidak ada artikel ditemukan.</div>
         )}
       </div>
+
+      <Pagination current={page} total={filtered.length} perPage={PER_PAGE} onChange={(p) => setPage(p)} />
 
       <ConfirmModal open={!!deleteTarget} title="Hapus Artikel" message="Yakin ingin menghapus artikel ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
       <LoadingOverlay open={saving} message="Menghapus..." />

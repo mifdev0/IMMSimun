@@ -5,11 +5,14 @@ import Link from 'next/link'
 import { getArticles, getKategoris } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
+import Pagination from '@/components/Pagination'
 
 export default function ArtikelPage() {
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [articles, setArticles] = useState<any[]>([])
   const [categories, setCategories] = useState<string[]>(['Semua'])
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 9
 
   useEffect(() => {
     getArticles().then((all) =>
@@ -26,6 +29,7 @@ export default function ArtikelPage() {
   const filtered = activeCategory === 'Semua'
     ? articles
     : articles.filter((a) => a.category === activeCategory)
+  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
   return (
     <div className="pb-20 bg-white min-h-screen">
@@ -42,7 +46,7 @@ export default function ArtikelPage() {
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => { setActiveCategory(cat); setPage(1) }}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                 activeCategory === cat
                   ? 'bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white'
@@ -55,7 +59,7 @@ export default function ArtikelPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((article) => (
+          {paginated.map((article) => (
             <Link key={article.id} href={`/artikel/${article.slug}`}
               className="bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_40px_rgba(249,115,22,0.1)] hover:-translate-y-1 transition-all duration-300 group">
               <div className="aspect-[16/9] overflow-hidden relative bg-gradient-to-br from-[rgba(249,115,22,0.1)] to-[rgba(240,165,0,0.1)] flex items-center justify-center">
@@ -84,6 +88,8 @@ export default function ArtikelPage() {
             </Link>
           ))}
         </div>
+
+        <Pagination current={page} total={filtered.length} perPage={PER_PAGE} onChange={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
 
         {filtered.length === 0 && (
           <div className="text-center py-20 text-gray-muted">
