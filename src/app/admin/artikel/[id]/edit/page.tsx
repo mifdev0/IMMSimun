@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Upload, X } from 'lucide-react'
+import { ArrowLeft, Upload, X, Loader2 } from 'lucide-react'
 import Link from 'next/link'
-import { getArticles, saveArticle } from '@/lib/store'
+import { getArticles, saveArticle, getKategoris } from '@/lib/store'
 import RichEditor from '@/components/RichEditor'
 
 export default function EditArtikel() {
@@ -13,9 +13,11 @@ export default function EditArtikel() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [article, setArticle] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [categories, setCategories] = useState<any[]>([])
 
   const [judul, setJudul] = useState('')
-  const [kategori, setKategori] = useState('Artikel')
+  const [kategori, setKategori] = useState('')
   const [penulis, setPenulis] = useState('')
   const [tanggal, setTanggal] = useState('')
   const [status, setStatus] = useState<'draft' | 'published'>('draft')
@@ -37,6 +39,7 @@ export default function EditArtikel() {
       }
       setLoading(false)
     })
+    getKategoris('artikel').then(setCategories)
   }, [id])
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +59,7 @@ export default function EditArtikel() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!article) return
+    setSaving(true)
     await saveArticle({
       ...article,
       title: judul,
@@ -79,8 +83,6 @@ export default function EditArtikel() {
     )
   }
 
-  const kategoriList = ['Agenda', 'Artikel', 'Hikmah', 'Kegiatan'] as const
-
   return (
     <div>
       <Link href="/admin/artikel" className="inline-flex items-center gap-2 text-sm text-gray-muted hover:text-accent transition-colors mb-6">
@@ -99,9 +101,9 @@ export default function EditArtikel() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Kategori <span className="text-red-500">*</span></label>
-              <select value={kategori} onChange={(e) => setKategori(e.target.value)}
+              <select value={kategori} onChange={(e) => setKategori(e.target.value)} required
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
-                {kategoriList.map((k) => <option key={k}>{k}</option>)}
+                {categories.map((k) => <option key={k.id} value={k.name}>{k.name}</option>)}
               </select>
             </div>
             <div>
@@ -159,9 +161,10 @@ export default function EditArtikel() {
         </div>
 
         <div className="flex items-center gap-3 mt-6">
-          <button type="submit"
-            className="bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg active:scale-[0.98]">
-            Simpan Perubahan
+          <button type="submit" disabled={saving}
+            className="bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-60 flex items-center gap-2">
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
           </button>
           <Link href="/admin/artikel"
             className="px-6 py-3 rounded-full border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-all">

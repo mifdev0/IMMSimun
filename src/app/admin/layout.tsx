@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { LayoutDashboard, FileText, Image, Users, Medal, Settings, Tag, LogOut, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import Toast from '@/components/Toast'
 
 const sidebarLinks = [
   { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -97,6 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
         <div className="flex-1 p-4 md:p-6 overflow-x-hidden max-w-full">{children}</div>
+        <Toast />
 
         {/* Mobile bottom nav */}
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 px-2 py-1 flex items-center justify-around shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
