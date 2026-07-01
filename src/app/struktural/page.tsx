@@ -59,8 +59,9 @@ export default function Struktural() {
     })
   }, [])
 
-  const filtered = all.filter((p) => p.period === selectedPeriodId)
   const selectedPeriod = periods.find((p) => p.id === selectedPeriodId)
+  const selectedLabel = selectedPeriod?.label || ''
+  const filtered = all.filter((p) => p.period === selectedLabel)
   const isNonCurrent = selectedPeriod && !selectedPeriod.is_current
 
   if (activeTab === 'pimpinan') {
