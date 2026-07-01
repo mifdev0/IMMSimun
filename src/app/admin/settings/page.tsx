@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Save, Upload, X, Crop } from 'lucide-react'
 import { getSettings, saveSettings } from '@/lib/store'
 import ImageCropper from '@/components/ImageCropper'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 import type { SiteSettings } from '@/types'
 
 const tabs = [
@@ -46,9 +48,9 @@ export default function AdminSettings() {
     setSaving(true)
     try {
       await saveSettings(settings)
-      alert('Pengaturan berhasil disimpan!')
+      showToast('success', 'Pengaturan berhasil disimpan!')
     } catch {
-      alert('Gagal menyimpan pengaturan.')
+      showToast('error', 'Gagal menyimpan pengaturan.')
     } finally {
       setSaving(false)
     }
@@ -158,6 +160,7 @@ export default function AdminSettings() {
           onCancel={() => setCropTarget('')}
         />
       )}
+      <LoadingOverlay open={saving} message="Menyimpan..." />
     </div>
   )
 }

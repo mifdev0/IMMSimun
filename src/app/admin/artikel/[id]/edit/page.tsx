@@ -6,6 +6,8 @@ import { ArrowLeft, Upload, X, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { getArticles, saveArticle, getKategoris } from '@/lib/store'
 import RichEditor from '@/components/RichEditor'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 export default function EditArtikel() {
   const router = useRouter()
@@ -60,17 +62,23 @@ export default function EditArtikel() {
     e.preventDefault()
     if (!article) return
     setSaving(true)
-    await saveArticle({
-      ...article,
-      title: judul,
-      category: kategori as any,
-      author: penulis,
-      published_at: tanggal,
-      content: konten || '<p></p>',
-      status,
-      images: images.map((url, i) => ({ id: article.id + '-' + i, artikel_id: article.id, image_url: url, order: i })),
-    })
-    router.push('/admin/artikel')
+    try {
+      await saveArticle({
+        ...article,
+        title: judul,
+        category: kategori as any,
+        author: penulis,
+        published_at: tanggal,
+        content: konten || '<p></p>',
+        status,
+        images: images.map((url, i) => ({ id: article.id + '-' + i, artikel_id: article.id, image_url: url, order: i })),
+      })
+      showToast('success', 'Berhasil disimpan')
+      router.push('/admin/artikel')
+    } catch (e: any) {
+      showToast('error', 'Gagal menyimpan: ' + e.message)
+      setSaving(false)
+    }
   }
 
   if (loading) return <div className="text-center py-20"><p className="text-gray-muted">Memuat...</p></div>
@@ -172,6 +180,7 @@ export default function EditArtikel() {
           </Link>
         </div>
       </form>
+      <LoadingOverlay open={saving} message="Menyimpan..." />
     </div>
   )
 }

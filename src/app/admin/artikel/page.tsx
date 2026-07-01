@@ -6,6 +6,8 @@ import { Plus, Pencil, Trash2, Search } from 'lucide-react'
 import { getArticles, deleteArticle } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
 import ConfirmModal from '@/components/ConfirmModal'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 export default function AdminArtikel() {
   const [articles, setArticles] = useState<any[]>([])
@@ -19,6 +21,7 @@ export default function AdminArtikel() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'published'>('all')
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const refresh = async () => {
     const all = await getArticles()
@@ -31,11 +34,19 @@ export default function AdminArtikel() {
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
+    setSaving(true)
     setDeleting(true)
-    await deleteArticle(deleteTarget)
-    setDeleting(false)
-    setDeleteTarget(null)
-    refresh()
+    try {
+      await deleteArticle(deleteTarget)
+      showToast('success', 'Berhasil dihapus')
+      setDeleteTarget(null)
+      refresh()
+    } catch {
+      showToast('error', 'Gagal menghapus')
+    } finally {
+      setSaving(false)
+      setDeleting(false)
+    }
   }
 
   const filtered = (articles || getArticles()).filter((a) => {
@@ -125,6 +136,7 @@ export default function AdminArtikel() {
       </div>
 
       <ConfirmModal open={!!deleteTarget} title="Hapus Artikel" message="Yakin ingin menghapus artikel ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+      <LoadingOverlay open={saving} message="Menghapus..." />
     </div>
   )
 }

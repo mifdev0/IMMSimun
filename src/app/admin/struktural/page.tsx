@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Plus, Pencil, Trash2, User, ArrowUp, ArrowDown, CalendarPlus } from 'lucide-react'
 import { getPengurus, deletePengurus, savePengurus, getPeriodes, savePeriode } from '@/lib/store'
 import ConfirmModal from '@/components/ConfirmModal'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 type GroupKey = 'pimpinan' | 'bidang' | 'unit'
 
@@ -65,6 +67,7 @@ export default function AdminStruktural() {
 
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   const handleDelete = (id: string) => {
     setDeleteTarget(id)
@@ -72,33 +75,57 @@ export default function AdminStruktural() {
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
+    setSaving(true)
     setDeleting(true)
-    await deletePengurus(deleteTarget)
-    setDeleting(false)
-    setDeleteTarget(null)
-    refresh()
+    try {
+      await deletePengurus(deleteTarget)
+      showToast('success', 'Berhasil dihapus')
+      setDeleteTarget(null)
+      refresh()
+    } catch {
+      showToast('error', 'Gagal menghapus')
+    } finally {
+      setSaving(false)
+      setDeleting(false)
+    }
   }
 
   const moveUp = async (id: string) => {
-    const all = await getPengurus()
-    const period = periods.find((p) => p.id === selectedPeriodId)
-    const items = all.filter((x) => x.period === (period?.label || '')).sort((a, b) => a.order - b.order)
-    const idx = items.findIndex((p) => p.id === id)
-    if (idx <= 0) return
-    const temp = items[idx].order; items[idx].order = items[idx - 1].order; items[idx - 1].order = temp
-    await Promise.all(items.map((p) => savePengurus(p)))
-    refresh()
+    setSaving(true)
+    try {
+      const all = await getPengurus()
+      const period = periods.find((p) => p.id === selectedPeriodId)
+      const items = all.filter((x) => x.period === (period?.label || '')).sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((p) => p.id === id)
+      if (idx <= 0) return
+      const temp = items[idx].order; items[idx].order = items[idx - 1].order; items[idx - 1].order = temp
+      await Promise.all(items.map((p) => savePengurus(p)))
+      showToast('success', 'Urutan berhasil diubah')
+      refresh()
+    } catch {
+      showToast('error', 'Gagal mengubah urutan')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const moveDown = async (id: string) => {
-    const all = await getPengurus()
-    const period = periods.find((p) => p.id === selectedPeriodId)
-    const items = all.filter((x) => x.period === (period?.label || '')).sort((a, b) => a.order - b.order)
-    const idx = items.findIndex((p) => p.id === id)
-    if (idx < 0 || idx >= items.length - 1) return
-    const temp = items[idx].order; items[idx].order = items[idx + 1].order; items[idx + 1].order = temp
-    await Promise.all(items.map((p) => savePengurus(p)))
-    refresh()
+    setSaving(true)
+    try {
+      const all = await getPengurus()
+      const period = periods.find((p) => p.id === selectedPeriodId)
+      const items = all.filter((x) => x.period === (period?.label || '')).sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((p) => p.id === id)
+      if (idx < 0 || idx >= items.length - 1) return
+      const temp = items[idx].order; items[idx].order = items[idx + 1].order; items[idx + 1].order = temp
+      await Promise.all(items.map((p) => savePengurus(p)))
+      showToast('success', 'Urutan berhasil diubah')
+      refresh()
+    } catch {
+      showToast('error', 'Gagal mengubah urutan')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const filtered = list.filter((p) => {
@@ -233,6 +260,7 @@ export default function AdminStruktural() {
       </div>
 
       <ConfirmModal open={!!deleteTarget} title="Hapus Pengurus" message="Yakin ingin menghapus pengurus ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+      <LoadingOverlay open={saving} message="Memproses..." />
     </div>
   )
 }

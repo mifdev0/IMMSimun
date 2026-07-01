@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { saveArticle, getArticles, getKategoris } from '@/lib/store'
 import { slugify } from '@/lib/utils'
 import RichEditor from '@/components/RichEditor'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 export default function BuatArtikel() {
   const router = useRouter()
@@ -45,20 +47,26 @@ export default function BuatArtikel() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const newId = String(Date.now())
-    await saveArticle({
-      id: newId,
-      title: judul,
-      slug: slugify(judul) + '-' + newId,
-      category: kategori as any,
-      author: penulis,
-      published_at: tanggal,
-      content: konten || '<p></p>',
-      status,
-      created_at: new Date().toISOString(),
-      images: images.map((url, i) => ({ id: newId + '-' + i, artikel_id: newId, image_url: url, order: i })),
-    })
-    router.push('/admin/artikel')
+    try {
+      const newId = String(Date.now())
+      await saveArticle({
+        id: newId,
+        title: judul,
+        slug: slugify(judul) + '-' + newId,
+        category: kategori as any,
+        author: penulis,
+        published_at: tanggal,
+        content: konten || '<p></p>',
+        status,
+        created_at: new Date().toISOString(),
+        images: images.map((url, i) => ({ id: newId + '-' + i, artikel_id: newId, image_url: url, order: i })),
+      })
+      showToast('success', 'Berhasil disimpan')
+      router.push('/admin/artikel')
+    } catch (e: any) {
+      showToast('error', 'Gagal menyimpan: ' + e.message)
+      setLoading(false)
+    }
   }
 
   return (
@@ -160,6 +168,7 @@ export default function BuatArtikel() {
           </Link>
         </div>
       </form>
+      <LoadingOverlay open={loading} message="Menyimpan..." />
     </div>
   )
 }

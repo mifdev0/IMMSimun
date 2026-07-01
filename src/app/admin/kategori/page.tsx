@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Plus, Trash2, Tag } from 'lucide-react'
 import { getKategoris, saveKategori, deleteKategori } from '@/lib/store'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 import type { Kategori } from '@/types'
 
 const tabs = [
@@ -14,6 +16,7 @@ export default function AdminKategori() {
   const [activeTab, setActiveTab] = useState<'artikel' | 'galeri'>('artikel')
   const [list, setList] = useState<Kategori[]>([])
   const [newName, setNewName] = useState('')
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => { refresh() }, [activeTab])
 
@@ -25,16 +28,31 @@ export default function AdminKategori() {
   const handleAdd = async () => {
     const name = newName.trim()
     if (!name) return
-    const maxOrder = list.reduce((max, k) => Math.max(max, k.order), 0)
-    await saveKategori({ id: String(Date.now()), type: activeTab, name, order: maxOrder + 1 })
-    setNewName('')
-    refresh()
+    setSaving(true)
+    try {
+      const maxOrder = list.reduce((max, k) => Math.max(max, k.order), 0)
+      await saveKategori({ id: String(Date.now()), type: activeTab, name, order: maxOrder + 1 })
+      showToast('success', 'Berhasil ditambahkan')
+      setNewName('')
+      refresh()
+    } catch (e: any) {
+      showToast('error', 'Gagal menambahkan: ' + e.message)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDelete = async (id: string) => {
-    if (confirm('Hapus kategori ini?')) {
+    if (!confirm('Hapus kategori ini?')) return
+    setSaving(true)
+    try {
       await deleteKategori(id)
+      showToast('success', 'Berhasil dihapus')
       refresh()
+    } catch {
+      showToast('error', 'Gagal menghapus')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -87,6 +105,7 @@ export default function AdminKategori() {
           )}
         </div>
       </div>
+      <LoadingOverlay open={saving} message="Memproses..." />
     </div>
   )
 }

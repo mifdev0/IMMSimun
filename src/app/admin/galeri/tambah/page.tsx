@@ -6,6 +6,8 @@ import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
 import { saveGaleri, getKategoris } from '@/lib/store'
 import ImageCropper from '@/components/ImageCropper'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 export default function TambahFoto() {
   const router = useRouter()
@@ -16,6 +18,7 @@ export default function TambahFoto() {
   const [categories, setCategories] = useState<any[]>([])
   const [kategori, setKategori] = useState('')
   const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0])
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     getKategoris('galeri').then((kats) => {
@@ -38,15 +41,22 @@ export default function TambahFoto() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!image) return
-    await saveGaleri({
-      id: String(Date.now()),
-      image_url: image,
-      caption,
-      category: kategori,
-      event_date: tanggal,
-      created_at: new Date().toISOString(),
-    })
-    router.push('/admin/galeri')
+    setSaving(true)
+    try {
+      await saveGaleri({
+        id: String(Date.now()),
+        image_url: image,
+        caption,
+        category: kategori,
+        event_date: tanggal,
+        created_at: new Date().toISOString(),
+      })
+      showToast('success', 'Berhasil disimpan')
+      router.push('/admin/galeri')
+    } catch (e: any) {
+      showToast('error', 'Gagal menyimpan: ' + e.message)
+      setSaving(false)
+    }
   }
 
   return (
@@ -130,6 +140,7 @@ export default function TambahFoto() {
           onCancel={() => setCropTarget('')}
         />
       )}
+      <LoadingOverlay open={saving} message="Menyimpan..." />
     </div>
   )
 }

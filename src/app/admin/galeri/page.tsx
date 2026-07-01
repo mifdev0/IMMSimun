@@ -5,11 +5,14 @@ import { Plus, Pencil, Trash2, ImageIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getGaleri, deleteGaleri } from '@/lib/store'
 import ConfirmModal from '@/components/ConfirmModal'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 export default function AdminGaleri() {
   const [fotos, setFotos] = useState<any[]>([])
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => { getGaleri().then(setFotos) }, [])
 
@@ -19,12 +22,20 @@ export default function AdminGaleri() {
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
+    setSaving(true)
     setDeleting(true)
-    await deleteGaleri(deleteTarget)
-    setDeleting(false)
-    setDeleteTarget(null)
-    const data = await getGaleri()
-    setFotos(data)
+    try {
+      await deleteGaleri(deleteTarget)
+      showToast('success', 'Berhasil dihapus')
+      setDeleteTarget(null)
+      const data = await getGaleri()
+      setFotos(data)
+    } catch {
+      showToast('error', 'Gagal menghapus')
+    } finally {
+      setSaving(false)
+      setDeleting(false)
+    }
   }
 
   return (
@@ -64,6 +75,7 @@ export default function AdminGaleri() {
       </div>
 
       <ConfirmModal open={!!deleteTarget} title="Hapus Foto" message="Yakin ingin menghapus foto ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+      <LoadingOverlay open={saving} message="Menghapus..." />
     </div>
   )
 }

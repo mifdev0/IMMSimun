@@ -6,6 +6,8 @@ import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
 import { savePengurus, getPengurus, getPeriodes } from '@/lib/store'
 import ImageCropper from '@/components/ImageCropper'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 function Form() {
   const router = useRouter()
@@ -21,6 +23,7 @@ function Form() {
   const [foto, setFoto] = useState('')
   const [cropTarget, setCropTarget] = useState('')
   const [periods, setPeriods] = useState<any[]>([])
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     getPeriodes().then((p) => {
@@ -64,20 +67,27 @@ function Form() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const id = editId || String(Date.now())
-    const existing = await getPengurus()
-    const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
-    await savePengurus({
-      id,
-      name: nama,
-      position: jabatan,
-      group: kelompok as any,
-      unit_name: bidangUnit,
-      photo_url: foto,
-      period: periode,
-      order: editId ? (existing.find((p) => p.id === editId)?.order || maxOrder + 1) : maxOrder + 1,
-    })
-    router.push('/admin/struktural')
+    setSaving(true)
+    try {
+      const id = editId || String(Date.now())
+      const existing = await getPengurus()
+      const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
+      await savePengurus({
+        id,
+        name: nama,
+        position: jabatan,
+        group: kelompok as any,
+        unit_name: bidangUnit,
+        photo_url: foto,
+        period: periode,
+        order: editId ? (existing.find((p) => p.id === editId)?.order || maxOrder + 1) : maxOrder + 1,
+      })
+      showToast('success', 'Berhasil disimpan')
+      router.push('/admin/struktural')
+    } catch (e: any) {
+      showToast('error', 'Gagal menyimpan: ' + e.message)
+      setSaving(false)
+    }
   }
 
   return (
@@ -235,6 +245,7 @@ function Form() {
           onCancel={() => setCropTarget('')}
         />
       )}
+      <LoadingOverlay open={saving} message="Menyimpan..." />
     </div>
   )
 }

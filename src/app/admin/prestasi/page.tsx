@@ -5,11 +5,14 @@ import Link from 'next/link'
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Medal } from 'lucide-react'
 import { getPrestasi, deletePrestasi, savePrestasi } from '@/lib/store'
 import ConfirmModal from '@/components/ConfirmModal'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 export default function AdminPrestasi() {
   const [list, setList] = useState<any[]>([])
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => { getPrestasi().then((data) => setList(data.sort((a, b) => a.order - b.order))) }, [])
 
@@ -21,35 +24,59 @@ export default function AdminPrestasi() {
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return
+    setSaving(true)
     setDeleting(true)
-    await deletePrestasi(deleteTarget)
-    setDeleting(false)
-    setDeleteTarget(null)
-    refresh()
+    try {
+      await deletePrestasi(deleteTarget)
+      showToast('success', 'Berhasil dihapus')
+      setDeleteTarget(null)
+      refresh()
+    } catch {
+      showToast('error', 'Gagal menghapus')
+    } finally {
+      setSaving(false)
+      setDeleting(false)
+    }
   }
 
   const moveUp = async (id: string) => {
-    const data = await getPrestasi()
-    const items = data.sort((a, b) => a.order - b.order)
-    const idx = items.findIndex((p) => p.id === id)
-    if (idx <= 0) return
-    const temp = items[idx].order
-    items[idx].order = items[idx - 1].order
-    items[idx - 1].order = temp
-    await Promise.all(items.map((p) => savePrestasi(p)))
-    refresh()
+    setSaving(true)
+    try {
+      const data = await getPrestasi()
+      const items = data.sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((p) => p.id === id)
+      if (idx <= 0) return
+      const temp = items[idx].order
+      items[idx].order = items[idx - 1].order
+      items[idx - 1].order = temp
+      await Promise.all(items.map((p) => savePrestasi(p)))
+      showToast('success', 'Urutan berhasil diubah')
+      refresh()
+    } catch {
+      showToast('error', 'Gagal mengubah urutan')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const moveDown = async (id: string) => {
-    const data = await getPrestasi()
-    const items = data.sort((a, b) => a.order - b.order)
-    const idx = items.findIndex((p) => p.id === id)
-    if (idx < 0 || idx >= items.length - 1) return
-    const temp = items[idx].order
-    items[idx].order = items[idx + 1].order
-    items[idx + 1].order = temp
-    await Promise.all(items.map((p) => savePrestasi(p)))
-    refresh()
+    setSaving(true)
+    try {
+      const data = await getPrestasi()
+      const items = data.sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((p) => p.id === id)
+      if (idx < 0 || idx >= items.length - 1) return
+      const temp = items[idx].order
+      items[idx].order = items[idx + 1].order
+      items[idx + 1].order = temp
+      await Promise.all(items.map((p) => savePrestasi(p)))
+      showToast('success', 'Urutan berhasil diubah')
+      refresh()
+    } catch {
+      showToast('error', 'Gagal mengubah urutan')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -115,6 +142,7 @@ export default function AdminPrestasi() {
       </div>
 
       <ConfirmModal open={!!deleteTarget} title="Hapus Prestasi" message="Yakin ingin menghapus prestasi ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
+      <LoadingOverlay open={saving} message="Memproses..." />
     </div>
   )
 }

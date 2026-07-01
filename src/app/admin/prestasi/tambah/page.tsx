@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { savePrestasi, getPrestasi } from '@/lib/store'
+import LoadingOverlay from '@/components/LoadingOverlay'
+import { showToast } from '@/components/Toast'
 
 function Form() {
   const router = useRouter()
@@ -29,17 +31,22 @@ function Form() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-    const id = editId || String(Date.now())
-    const existing = await getPrestasi()
-    const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
-    await savePrestasi({
-      id,
-      title,
-      description,
-      order: editId ? (existing.find((p) => p.id === editId)?.order || maxOrder + 1) : maxOrder + 1,
-    })
-    setSaving(false)
-    router.push('/admin/prestasi')
+    try {
+      const id = editId || String(Date.now())
+      const existing = await getPrestasi()
+      const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
+      await savePrestasi({
+        id,
+        title,
+        description,
+        order: editId ? (existing.find((p) => p.id === editId)?.order || maxOrder + 1) : maxOrder + 1,
+      })
+      showToast('success', 'Berhasil disimpan')
+      router.push('/admin/prestasi')
+    } catch (e: any) {
+      showToast('error', 'Gagal menyimpan: ' + e.message)
+      setSaving(false)
+    }
   }
 
   return (
@@ -77,6 +84,7 @@ function Form() {
           </Link>
         </div>
       </form>
+      <LoadingOverlay open={saving} message="Menyimpan..." />
     </div>
   )
 }
