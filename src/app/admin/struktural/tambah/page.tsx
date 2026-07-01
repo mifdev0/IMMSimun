@@ -114,6 +114,17 @@ function Form() {
                   <option value="Sekretaris Unit">Sekretaris Unit</option>
                   <option value="Anggota Unit">Anggota Unit</option>
                 </select>
+              ) : kelompok === 'pimpinan' ? (
+                <select value={jabatan} onChange={(e) => setJabatan(e.target.value)} required
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                  <option value="">Pilih jabatan</option>
+                  <option value="Ketua Umum">Ketua Umum</option>
+                  <option value="Wakil Ketua Umum">Wakil Ketua Umum</option>
+                  <option value="Sekretaris Umum">Sekretaris Umum</option>
+                  <option value="Wakil Sekretaris Umum">Wakil Sekretaris Umum</option>
+                  <option value="Bendahara Umum">Bendahara Umum</option>
+                  <option value="Wakil Bendahara Umum">Wakil Bendahara Umum</option>
+                </select>
               ) : (
                 <input type="text" value={jabatan} onChange={(e) => setJabatan(e.target.value)} required
                   placeholder="Contoh: Ketua Umum"

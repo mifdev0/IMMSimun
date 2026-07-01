@@ -97,6 +97,8 @@ const defaultSettings: SiteSettings = {
   hero_cover: '/hero.jpeg',
   hero_stat_label: 'Kader Aktif',
   hero_stat_value: '71+',
+  hero_stat_label_2: 'Pimpinan Aktif',
+  hero_stat_value_2: '18',
   about_image: '/hero.jpeg',
   about_text: 'IMM Siti Munjiyah merupakan wadah perkaderan Ikatan Mahasiswa Muhammadiyah di lingkungan FKIP Universitas Muhammadiyah Surakarta.',
   vision_text: 'Unggul dalam keilmuan, mandiri dalam berkarya, dan bertaqwa dalam mengabdi demi kemaslahatan umat dan bangsa.',

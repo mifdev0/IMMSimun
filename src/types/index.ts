@@ -51,6 +51,8 @@ export interface SiteSettings {
   hero_cover: string
   hero_stat_label: string
   hero_stat_value: string
+  hero_stat_label_2: string
+  hero_stat_value_2: string
   about_image: string
   about_text: string
   vision_text: string

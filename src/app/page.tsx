@@ -98,6 +98,10 @@ export default function Beranda() {
                 <div className="font-anton text-4xl md:text-5xl text-white/95">{settings?.hero_stat_value || '71+'}</div>
                 <div className="text-[11px] text-white/50 font-semibold tracking-widest uppercase mt-1">{settings?.hero_stat_label || 'Kader Aktif'}</div>
               </div>
+              <div className="text-center">
+                <div className="font-anton text-4xl md:text-5xl text-white/95">{settings?.hero_stat_value_2 || '18'}</div>
+                <div className="text-[11px] text-white/50 font-semibold tracking-widest uppercase mt-1">{settings?.hero_stat_label_2 || 'Pimpinan Aktif'}</div>
+              </div>
             </div>
           </div>
         </div>

@@ -88,6 +88,8 @@ export default function AdminSettings() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <InputField label="Label Statistik" value={settings.hero_stat_label} onChange={(v) => update('hero_stat_label', v)} />
               <InputField label="Nilai Statistik" value={settings.hero_stat_value} onChange={(v) => update('hero_stat_value', v)} />
+              <InputField label="Label Statistik 2" value={settings.hero_stat_label_2} onChange={(v) => update('hero_stat_label_2', v)} />
+              <InputField label="Nilai Statistik 2" value={settings.hero_stat_value_2} onChange={(v) => update('hero_stat_value_2', v)} />
             </div>
           </div>
         )}
