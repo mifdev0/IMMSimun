@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getArticles } from '@/lib/store'
+import { getArticles, getKategoris } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
-
-const categories = ['Semua', 'Agenda', 'Artikel', 'Hikmah', 'Kegiatan', 'Kaderisasi', 'Intelektual', 'Sosial', 'Prestasi']
 
 export default function ArtikelPage() {
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [articles, setArticles] = useState<any[]>([])
+  const [categories, setCategories] = useState<string[]>(['Semua'])
 
   useEffect(() => {
     getArticles().then((all) =>
@@ -18,6 +17,9 @@ export default function ArtikelPage() {
         all.filter((a) => a.status === 'published')
           .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
       )
+    )
+    getKategoris('artikel').then((kats) =>
+      setCategories(['Semua', ...kats.map((k) => k.name)])
     )
   }, [])
 

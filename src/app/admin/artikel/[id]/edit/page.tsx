@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Upload, X } from 'lucide-react'
 import Link from 'next/link'
 import { getArticles, saveArticle } from '@/lib/store'
+import RichEditor from '@/components/RichEditor'
 
 export default function EditArtikel() {
   const router = useRouter()
@@ -153,8 +154,7 @@ export default function EditArtikel() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Konten <span className="text-red-500">*</span></label>
-            <textarea value={konten} onChange={(e) => setKonten(e.target.value)} rows={12} required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm resize-y" />
+            <RichEditor content={konten} onChange={setKonten} />
           </div>
         </div>
 

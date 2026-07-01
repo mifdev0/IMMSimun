@@ -6,6 +6,7 @@ import { ArrowLeft, Upload, X } from 'lucide-react'
 import Link from 'next/link'
 import { saveArticle, getArticles } from '@/lib/store'
 import { slugify } from '@/lib/utils'
+import RichEditor from '@/components/RichEditor'
 
 export default function BuatArtikel() {
   const router = useRouter()
@@ -135,8 +136,7 @@ export default function BuatArtikel() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Konten <span className="text-red-500">*</span></label>
-            <textarea value={konten} onChange={(e) => setKonten(e.target.value)} rows={12} required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm resize-y" />
+            <RichEditor content={konten} onChange={setKonten} />
           </div>
         </div>
 

@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { getSettings } from '@/lib/store'
 import { BookOpen, Heart, Clock } from 'lucide-react'
 
 const pilarData = [
@@ -19,6 +23,12 @@ const pilarData = [
 ]
 
 export default function TentangKami() {
+  const [settings, setSettings] = useState<any>(null)
+
+  useEffect(() => {
+    getSettings().then(setSettings)
+  }, [])
+
   return (
     <div className="pb-20 bg-[#fff8f0] relative overflow-hidden min-h-screen">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.04),transparent_70%)]" />
@@ -31,6 +41,16 @@ export default function TentangKami() {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-10">
+          <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+            <h2 className="text-2xl font-bold mb-4">Sekilas IMM Siti Munjiyah</h2>
+            {settings?.about_image && (
+              <img src={settings.about_image} alt="IMM Siti Munjiyah" className="w-full rounded-xl mb-4 object-cover max-h-64" />
+            )}
+            <p className="text-gray-muted leading-relaxed mb-4">
+              {settings?.about_text || 'IMM Siti Munjiyah merupakan wadah perkaderan Ikatan Mahasiswa Muhammadiyah di lingkungan FKIP Universitas Muhammadiyah Surakarta. Kami berkomitmen membentuk akademisi Islam yang berakhlak mulia, berlandaskan intelektualitas, humanitas, dan religiusitas.'}
+            </p>
+          </div>
+
           <div className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
             <h2 className="text-2xl font-bold mb-4">Apa itu IMM?</h2>
             <p className="text-gray-muted leading-relaxed mb-4">

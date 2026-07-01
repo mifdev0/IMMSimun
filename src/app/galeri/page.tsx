@@ -1,17 +1,21 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getGaleri } from '@/lib/store'
+import { getGaleri, getKategoris } from '@/lib/store'
 import { ImageIcon, X } from 'lucide-react'
-
-const categories = ['Semua', 'Kaderisasi', 'Intelektual', 'Sosial', 'Kegiatan', 'Prestasi']
 
 export default function GaleriPage() {
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [galeri, setGaleri] = useState<any[]>([])
   const [selectedFoto, setSelectedFoto] = useState<any>(null)
+  const [categories, setCategories] = useState<string[]>(['Semua'])
 
-  useEffect(() => { getGaleri().then(setGaleri) }, [])
+  useEffect(() => {
+    getGaleri().then(setGaleri)
+    getKategoris('galeri').then((kats) =>
+      setCategories(['Semua', ...kats.map((k) => k.name)])
+    )
+  }, [])
 
   const filtered = activeCategory === 'Semua' ? galeri : galeri.filter((f: any) => f.category === activeCategory)
 

@@ -1,38 +1,52 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { getSettings } from '@/lib/store'
 import { Phone, MapPin, Mail, Globe } from 'lucide-react'
 import Link from 'next/link'
 
-const kontakData = [
-  {
-    icon: Phone,
-    title: 'WhatsApp',
-    desc: 'Hubungi kami langsung via WhatsApp untuk informasi lebih lanjut.',
-    action: { label: 'Hubungi via WhatsApp', href: 'https://wa.me/6281234567890', external: true },
-  },
-  {
-    icon: Globe,
-    title: 'Media Sosial',
-    desc: 'Ikuti kami di berbagai platform media sosial.',
-    sosmed: [
-      { label: '@immsitimunjiyah_fkip', href: 'https://instagram.com/immsitimunjiyah_fkip' },
-      { label: '@immsitimunjiyah_fkip', href: 'https://tiktok.com/@immsitimunjiyah_fkip' },
-      { label: 'IMM Siti Munjiyah', href: 'https://youtube.com/@immsitimunjiyah' },
-      { label: '@immsitimunjiyah', href: 'https://twitter.com/immsitimunjiyah' },
-    ],
-  },
-  {
-    icon: MapPin,
-    title: 'Alamat',
-    desc: 'Sekretariat PK IMM Siti Munjiyah\nFakultas Keguruan dan Ilmu Pendidikan\nUniversitas Muhammadiyah Surakarta\nKampus 1 UMS, Jl. A. Yani No. 157, Pabelan, Kartasura, Sukoharjo',
-  },
-  {
-    icon: Mail,
-    title: 'Email',
-    desc: 'Untuk keperluan resmi dan kerjasama, silakan hubungi melalui email.',
-    action: { label: 'immsitimunjiyah@ums.ac.id', href: 'mailto:immsitimunjiyah@ums.ac.id', external: false },
-  },
-]
-
 export default function Kontak() {
+  const [settings, setSettings] = useState<any>(null)
+
+  useEffect(() => {
+    getSettings().then(setSettings)
+  }, [])
+
+  const kontakData = [
+    {
+      icon: Phone,
+      title: 'WhatsApp',
+      desc: 'Hubungi kami langsung via WhatsApp untuk informasi lebih lanjut.',
+      action: {
+        label: 'Hubungi via WhatsApp',
+        href: `https://wa.me/${settings?.kontak_whatsapp || '6281234567890'}`,
+        external: true,
+      },
+    },
+    {
+      icon: Globe,
+      title: 'Media Sosial',
+      desc: 'Ikuti kami di berbagai platform media sosial.',
+      sosmed: [
+        { label: settings?.kontak_instagram ? `@${settings.kontak_instagram}` : '@immsitimunjiyah_fkip', href: `https://instagram.com/${settings?.kontak_instagram || 'immsitimunjiyah_fkip'}` },
+        { label: settings?.kontak_tiktok ? `@${settings.kontak_tiktok}` : '@immsitimunjiyah_fkip', href: `https://tiktok.com/@${settings?.kontak_tiktok || 'immsitimunjiyah_fkip'}` },
+        { label: settings?.kontak_youtube || 'IMM Siti Munjiyah', href: `https://youtube.com/${settings?.kontak_youtube || '@immsitimunjiyah'}` },
+        { label: settings?.kontak_twitter ? `@${settings.kontak_twitter}` : '@immsitimunjiyah', href: `https://twitter.com/${settings?.kontak_twitter || 'immsitimunjiyah'}` },
+      ],
+    },
+    {
+      icon: MapPin,
+      title: 'Alamat',
+      desc: settings?.kontak_alamat || 'Sekretariat PK IMM Siti Munjiyah\nFakultas Keguruan dan Ilmu Pendidikan\nUniversitas Muhammadiyah Surakarta\nKampus 1 UMS, Jl. A. Yani No. 157, Pabelan, Kartasura, Sukoharjo',
+    },
+    {
+      icon: Mail,
+      title: 'Email',
+      desc: 'Untuk keperluan resmi dan kerjasama, silakan hubungi melalui email.',
+      action: { label: settings?.kontak_email || 'immsitimunjiyah@ums.ac.id', href: `mailto:${settings?.kontak_email || 'immsitimunjiyah@ums.ac.id'}`, external: false },
+    },
+  ]
+
   return (
     <div className="pb-20 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">

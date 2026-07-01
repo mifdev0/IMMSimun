@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getPengurus } from '@/lib/store'
+import { getPengurus, getPeriodes } from '@/lib/store'
 
 type GroupKey = 'pimpinan' | 'bidang' | 'unit'
 
@@ -46,19 +46,38 @@ export default function Struktural() {
   const [selectedBidang, setSelectedBidang] = useState('Bidang Organisasi')
   const [selectedUnit, setSelectedUnit] = useState('LO BUMK')
   const [all, setAll] = useState<any[]>([])
+  const [periods, setPeriods] = useState<any[]>([])
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string>('')
 
-  useEffect(() => { getPengurus().then(setAll) }, [])
+  useEffect(() => {
+    getPengurus().then(setAll)
+    getPeriodes().then((p) => {
+      setPeriods(p)
+      const current = p.find((per) => per.is_current)
+      if (current) setSelectedPeriodId(current.id)
+      else if (p.length > 0) setSelectedPeriodId(p[0].id)
+    })
+  }, [])
+
+  const filtered = all.filter((p) => p.period === selectedPeriodId)
+  const selectedPeriod = periods.find((p) => p.id === selectedPeriodId)
+  const isNonCurrent = selectedPeriod && !selectedPeriod.is_current
 
   if (activeTab === 'pimpinan') {
-    const filtered = all.filter((p) => p.group === 'pimpinan').sort((a, b) => a.order - b.order)
+    const pimpinan = filtered.filter((p) => p.group === 'pimpinan').sort((a, b) => a.order - b.order)
     return (
       <div className="pb-20 bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
-          <Header />
+          <Header periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={setSelectedPeriodId} />
           <TabNav activeTab={activeTab} setActiveTab={setActiveTab} />
           <div className="flex flex-wrap justify-center gap-8">
-            {filtered.map((p, i) => (
-              <div key={p.id} className="relative flex flex-col items-center" style={{ width: 'clamp(160px, 22vw, 220px)' }}>
+            {pimpinan.map((p, i) => (
+              <div key={p.id} className={`relative flex flex-col items-center ${isNonCurrent ? 'opacity-60 grayscale' : ''}`} style={{ width: 'clamp(160px, 22vw, 220px)' }}>
+                {isNonCurrent && (
+                  <span className="absolute -top-2 right-0 z-10 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white text-[8px] font-bold uppercase tracking-widest shadow-md">
+                    {selectedPeriod?.label}
+                  </span>
+                )}
                 {i > 0 && (
                   <div className="hidden lg:block absolute -left-8 top-9 text-accent/30">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +109,7 @@ export default function Struktural() {
   }
 
   if (activeTab === 'bidang') {
-    const currentBidangMembers = all.filter((p) => p.group === 'bidang' && p.unit_name === selectedBidang).sort((a, b) => a.order - b.order)
+    const currentBidangMembers = filtered.filter((p) => p.group === 'bidang' && p.unit_name === selectedBidang).sort((a, b) => a.order - b.order)
     const ketua = currentBidangMembers.find((p) => p.position === 'Ketua Bidang')
     const sekretaris = currentBidangMembers.find((p) => p.position === 'Sekretaris Bidang')
     const anggota = currentBidangMembers.filter((p) => p.position === 'Anggota Bidang')
@@ -110,7 +129,7 @@ export default function Struktural() {
     return (
       <div className="pb-20 bg-white min-h-screen">
         <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
-          <Header />
+          <Header periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={setSelectedPeriodId} />
           <TabNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
           <div className="flex flex-wrap justify-center gap-2 mb-10 overflow-x-auto pb-2 infinite-scroll">
@@ -146,7 +165,7 @@ export default function Struktural() {
               <div className="mb-8">
                 <p className="text-xs font-bold uppercase tracking-widest text-accent mb-4 text-center">Ketua Bidang</p>
                 <div className="flex justify-center">
-                  <MemberCard member={ketua} role="ketua" />
+                  <MemberCard member={ketua} role="ketua" isNonCurrent={isNonCurrent} periodLabel={selectedPeriod?.label} />
                 </div>
               </div>
             )}
@@ -155,7 +174,7 @@ export default function Struktural() {
               <div className="mb-8">
                 <p className="text-xs font-bold uppercase tracking-widest text-[#be0a06] mb-4 text-center">Sekretaris Bidang</p>
                 <div className="flex justify-center">
-                  <MemberCard member={sekretaris} role="sekretaris" />
+                  <MemberCard member={sekretaris} role="sekretaris" isNonCurrent={isNonCurrent} periodLabel={selectedPeriod?.label} />
                 </div>
               </div>
             )}
@@ -165,7 +184,7 @@ export default function Struktural() {
                 <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 text-center">Anggota</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
                   {anggota.map((m) => (
-                    <MemberCard key={m.id} member={m} role="anggota" />
+                    <MemberCard key={m.id} member={m} role="anggota" isNonCurrent={isNonCurrent} periodLabel={selectedPeriod?.label} />
                   ))}
                 </div>
               </div>
@@ -177,13 +196,13 @@ export default function Struktural() {
   }
 
   // UNIT TAB
-  const currentUnitMembers = all.filter((p) => p.group === 'unit' && p.unit_name === selectedUnit).sort((a, b) => a.order - b.order)
+  const currentUnitMembers = filtered.filter((p) => p.group === 'unit' && p.unit_name === selectedUnit).sort((a, b) => a.order - b.order)
   const ketuaUnit = currentUnitMembers.find((p) => p.position === 'Ketua Unit')
 
   return (
     <div className="pb-20 bg-white min-h-screen">
       <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
-        <Header />
+        <Header periods={periods} selectedPeriodId={selectedPeriodId} onPeriodChange={setSelectedPeriodId} />
         <TabNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <div className="flex flex-wrap justify-center gap-2 mb-10 overflow-x-auto pb-2 infinite-scroll">
@@ -215,7 +234,7 @@ export default function Struktural() {
             <div className="mb-8">
               <p className="text-xs font-bold uppercase tracking-widest text-accent mb-4 text-center">Ketua Unit</p>
               <div className="flex justify-center">
-                <MemberCard member={ketuaUnit} role="ketua" />
+                <MemberCard member={ketuaUnit} role="ketua" isNonCurrent={isNonCurrent} periodLabel={selectedPeriod?.label} />
               </div>
             </div>
           )}
@@ -225,14 +244,27 @@ export default function Struktural() {
   )
 }
 
-function Header() {
+function Header({ periods, selectedPeriodId, onPeriodChange }: { periods: any[]; selectedPeriodId: string; onPeriodChange: (id: string) => void }) {
   return (
     <div className="text-center pt-12 mb-12">
       <span className="inline-block px-4 py-1.5 rounded-full bg-[rgba(249,115,22,0.1)] text-accent text-xs font-semibold uppercase tracking-widest mb-4 border border-[rgba(249,115,22,0.2)]">
         Struktural
       </span>
-      <h1 className="text-3xl md:text-5xl font-bold">Kepengurusan <span className="bg-gradient-to-r from-[#f97316] to-[#f0a500] bg-clip-text text-transparent">2025/2026</span></h1>
-      <p className="text-gray-muted mt-3 max-w-xl mx-auto">Struktur lengkap Pimpinan Komisariat IMM Siti Munjiyah FKIP UMS masa bakti 2025/2026.</p>
+      <h1 className="text-3xl md:text-5xl font-bold">Kepengurusan <span className="bg-gradient-to-r from-[#f97316] to-[#f0a500] bg-clip-text text-transparent">IMM Siti Munjiyah</span></h1>
+      <div className="mt-4 inline-flex items-center gap-2 bg-[#fff8f0] px-4 py-2 rounded-full border border-[rgba(249,115,22,0.2)]">
+        <span className="text-sm text-gray-muted">Periode:</span>
+        <select
+          value={selectedPeriodId}
+          onChange={(e) => onPeriodChange(e.target.value)}
+          className="text-sm font-semibold text-accent bg-transparent border-none outline-none cursor-pointer"
+        >
+          {periods.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.label}{p.is_current ? ' (Saat Ini)' : ''}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   )
 }
@@ -254,12 +286,17 @@ function TabNav({ activeTab, setActiveTab }: { activeTab: GroupKey; setActiveTab
   )
 }
 
-function MemberCard({ member, role }: { member: { id: string; name: string; photo_url: string; position: string }; role: 'ketua' | 'sekretaris' | 'anggota' }) {
+function MemberCard({ member, role, isNonCurrent, periodLabel }: { member: { id: string; name: string; photo_url: string; position: string }; role: 'ketua' | 'sekretaris' | 'anggota'; isNonCurrent?: boolean; periodLabel?: string }) {
   const size = role === 'ketua' ? 'w-28 h-28 md:w-32 md:h-32' : role === 'sekretaris' ? 'w-24 h-24 md:w-28 md:h-28' : 'w-20 h-20 md:w-24 md:h-24'
   const fontSize = role === 'ketua' ? 'text-3xl md:text-4xl' : role === 'sekretaris' ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'
 
   return (
-    <div className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-[#fff8f0] transition-colors">
+    <div className={`flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-[#fff8f0] transition-colors relative ${isNonCurrent ? 'opacity-60 grayscale' : ''}`}>
+      {isNonCurrent && periodLabel && (
+        <span className="absolute -top-1 right-2 z-10 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white text-[8px] font-bold uppercase tracking-widest shadow-md">
+          {periodLabel}
+        </span>
+      )}
       <div className={`${size} rounded-full overflow-hidden bg-gradient-to-br from-[rgba(249,115,22,0.1)] to-[rgba(240,165,0,0.08)] flex items-center justify-center ring-4 ring-white shadow-[0_4px_15px_rgba(249,115,22,0.1)]`}>
         {member.photo_url ? (
           <img src={member.photo_url} alt={member.name} className="w-full h-full object-cover" />

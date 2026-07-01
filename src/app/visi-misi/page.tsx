@@ -1,6 +1,10 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { getSettings } from '@/lib/store'
 import { BookOpen, Heart, Clock } from 'lucide-react'
 
-const misiData = [
+const defaultMisiData = [
   { num: '1', title: 'Internalisasi Nilai', desc: 'Menguatkan internalisasi nilai-nilai Al-Islam dan Kemuhammadiyahan dalam setiap langkah organisasi dan pribadi kader.' },
   { num: '2', title: 'Budaya Literasi', desc: 'Meningkatkan budaya literasi dan daya kritis mahasiswa sebagai calon pendidik masa depan yang berkualitas.' },
   { num: '3', title: 'Aksi Kemanusiaan', desc: 'Responsif terhadap isu sosial dan aktif dalam berbagai gerakan kemanusiaan yang inklusif dan berkelanjutan.' },
@@ -14,6 +18,26 @@ const pilarData = [
 ]
 
 export default function VisiMisi() {
+  const [settings, setSettings] = useState<any>(null)
+
+  useEffect(() => {
+    getSettings().then(setSettings)
+  }, [])
+
+  let misiData = defaultMisiData
+  if (settings?.mission_items) {
+    try {
+      const parsed = JSON.parse(settings.mission_items)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        misiData = parsed.map((item: string, i: number) => ({
+          num: String(i + 1),
+          title: item.split(/[,.]/)[0] || `Misi ${i + 1}`,
+          desc: item,
+        }))
+      }
+    } catch {}
+  }
+
   return (
     <div className="pb-20 bg-[#fff8f0] relative overflow-hidden min-h-screen">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.04),transparent_70%)]" />
@@ -31,9 +55,8 @@ export default function VisiMisi() {
             <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full blur-3xl -ml-20 -mb-20" />
             <div className="relative z-10">
               <span className="text-xs font-bold uppercase tracking-widest text-white/70 block mb-4">Visi Utama</span>
-              <p className="text-2xl md:text-3xl italic leading-relaxed font-medium">
-                &ldquo;Unggul dalam keilmuan, mandiri dalam berkarya, dan bertaqwa dalam mengabdi
-                demi kemaslahatan umat dan bangsa.&rdquo;
+              <p className="text-3xl md:text-4xl italic leading-relaxed font-medium">
+                &ldquo;{settings?.vision_text || 'Unggul dalam keilmuan, mandiri dalam berkarya, dan bertaqwa dalam mengabdi demi kemaslahatan umat dan bangsa.'}&rdquo;
               </p>
             </div>
           </div>
@@ -47,8 +70,8 @@ export default function VisiMisi() {
                     {misi.num}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-base">{misi.title}</h3>
-                    <p className="text-sm text-gray-muted mt-1">{misi.desc}</p>
+                    <h3 className="font-semibold text-lg">{misi.title}</h3>
+                    <p className="text-base text-gray-muted mt-1">{misi.desc}</p>
                   </div>
                 </div>
               ))}

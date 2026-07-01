@@ -76,9 +76,9 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-3">
-            <a href="/kontak" className="btn-primary text-sm !py-2 !px-5 hidden sm:inline-flex">
+            <Link href="/bergabung" className="btn-primary text-sm !py-2 !px-5 hidden sm:inline-flex">
               Gabung
-            </a>
+            </Link>
             <button
               className="lg:hidden p-2"
               onClick={() => setOpen(!open)}
@@ -107,7 +107,7 @@ export default function Navbar() {
                   </Link>
                 )
               })}
-              <Link href="/kontak" onClick={() => setOpen(false)} className="btn-primary text-sm !py-2.5 !px-6 inline-flex mt-2">
+              <Link href="/bergabung" onClick={() => setOpen(false)} className="btn-primary text-sm !py-2.5 !px-6 inline-flex mt-2">
                 Gabung
               </Link>
             </div>

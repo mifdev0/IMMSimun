@@ -3,14 +3,8 @@
 import Link from 'next/link'
 import { ArrowRight, BookOpen, Heart, Clock } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getArticles, getPrestasi } from '@/lib/store'
+import { getArticles, getPrestasi, getSettings } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
-
-const stats = [
-  { value: '71+', label: 'Kader Aktif' },
-  { value: '5+', label: 'Tahun Berjuang' },
-  { value: '20+', label: 'Program Unggulan' },
-]
 
 const pilarIMM = [
   { icon: BookOpen, label: 'Intelektualitas', desc: 'Mengembangkan daya pikir kritis, ilmiah, dan inovatif.' },
@@ -18,9 +12,17 @@ const pilarIMM = [
   { icon: Clock, label: 'Religiusitas', desc: 'Memperkuat nilai-nilai keislaman dan ketakwaan.' },
 ]
 
+const defaultMisiData = [
+  { num: '01', title: 'Internalisasi Nilai', desc: 'Menguatkan internalisasi nilai-nilai Al-Islam dan Kemuhammadiyahan.' },
+  { num: '02', title: 'Budaya Literasi', desc: 'Meningkatkan budaya literasi dan daya kritis mahasiswa.' },
+  { num: '03', title: 'Aksi Kemanusiaan', desc: 'Responsif terhadap isu sosial dan gerakan kemanusiaan inklusif.' },
+  { num: '04', title: 'Kemandirian Kader', desc: 'Mengembangkan potensi kewirausahaan dan soft skills.' },
+]
+
 export default function Beranda() {
   const [latestArticles, setLatestArticles] = useState<any[]>([])
   const [achievements, setAchievements] = useState<any[]>([])
+  const [settings, setSettings] = useState<any>(null)
 
   useEffect(() => {
     getArticles().then((all) =>
@@ -31,14 +33,31 @@ export default function Beranda() {
       )
     )
     getPrestasi().then(setAchievements)
+    getSettings().then(setSettings)
   }, [])
+
+  let missionItems = defaultMisiData
+  if (settings?.mission_items) {
+    try {
+      const parsed = JSON.parse(settings.mission_items)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        missionItems = parsed.map((item: string, i: number) => ({
+          num: String(i + 1).padStart(2, '0'),
+          title: item.split(/[,.]/)[0] || `Misi ${i + 1}`,
+          desc: item,
+        }))
+      }
+    } catch {}
+  }
+
+  const ctaIsExternal = settings?.cta_link && settings.cta_link.startsWith('http')
 
   return (
     <>
       {/* HERO */}
       <section className="relative min-h-[90vh] md:min-h-screen flex items-center overflow-hidden pt-20 md:pt-[88px]">
         <div className="absolute inset-0">
-          <img src="/hero.jpeg" alt="Hero IMM Siti Munjiyah" className="w-full h-full object-cover" />
+          <img src={settings?.hero_cover || '/hero.jpeg'} alt="Hero IMM Siti Munjiyah" className="w-full h-full object-cover" />
         </div>
         <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/45 via-black/60 to-black/75" />
         <div className="absolute inset-0 z-[1] bg-gradient-to-br from-[rgba(190,10,6,0.15)] to-[rgba(249,115,22,0.10)]" />
@@ -54,18 +73,14 @@ export default function Beranda() {
         <div className="relative z-10 w-full flex justify-center px-8 md:px-14 lg:px-20 xl:px-28">
           <div className="max-w-4xl text-center">
             <p className="text-[13px] text-white/75 font-normal tracking-[0.05em] mb-4" style={{ textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
-              Pimpinan Komisariat FKIP UMS · Surakarta
+              {settings?.hero_tagline || 'Universitas Muhammadiyah Surakarta'}
             </p>
             <h1 className="font-bold text-white leading-[1.1] mb-5" style={{ fontSize: 'clamp(36px, 5vw, 72px)', textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
               PK IMM{' '}
               <span className="bg-gradient-to-r from-[#f97316] to-[#f0a500] bg-clip-text text-transparent">Siti Munjiyah</span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-8 leading-relaxed" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.6)' }}>
-              Mewujudkan kader pendidik yang unggul dalam{' '}
-              <span className="text-[#f0a500] font-semibold">intelektualitas</span>,{' '}
-              <span className="text-[#f0a500] font-semibold">humanitas</span>, dan{' '}
-              <span className="text-[#f0a500] font-semibold">religiusitas</span>{' '}
-              untuk mencerahkan semesta.
+              {settings?.hero_subtitle || 'Anggun dalam moral, unggul dalam intelektual'}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Link href="/tentang-kami"
@@ -79,12 +94,10 @@ export default function Beranda() {
               </Link>
             </div>
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 mt-14">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="font-anton text-4xl md:text-5xl text-white/95">{stat.value}</div>
-                  <div className="text-[11px] text-white/50 font-semibold tracking-widest uppercase mt-1">{stat.label}</div>
-                </div>
-              ))}
+              <div className="text-center">
+                <div className="font-anton text-4xl md:text-5xl text-white/95">{settings?.hero_stat_value || '71+'}</div>
+                <div className="text-[11px] text-white/50 font-semibold tracking-widest uppercase mt-1">{settings?.hero_stat_label || 'Kader Aktif'}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -97,7 +110,7 @@ export default function Beranda() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <div className="relative rounded-[2rem] overflow-hidden shadow-[0_10px_30px_rgba(249,115,22,0.08)] aspect-[4/3]">
-                <img src="/hero.jpeg" alt="Kegiatan IMM" className="w-full h-full object-cover" />
+                <img src={settings?.about_image || '/hero.jpeg'} alt="Kegiatan IMM" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               </div>
               <div className="absolute -bottom-6 -right-6 w-28 h-28 rounded-full bg-gradient-to-br from-[#f97316] to-[#f0a500] opacity-20 blur-2xl" />
@@ -111,10 +124,7 @@ export default function Beranda() {
                 <span className="bg-gradient-to-r from-[#f97316] to-[#f0a500] bg-clip-text text-transparent">Berakhlak Mulia</span>
               </h2>
               <p className="text-gray-muted leading-relaxed mb-6">
-                IMM Siti Munjiyah merupakan wadah perkaderan Ikatan Mahasiswa Muhammadiyah di lingkungan
-                FKIP Universitas Muhammadiyah Surakarta. Kami berkomitmen membentuk akademisi Islam yang
-                berakhlak mulia, berlandaskan <strong>intelektualitas</strong>, <strong>humanitas</strong>, dan{' '}
-                <strong>religiusitas</strong>.
+                {settings?.about_text || 'IMM Siti Munjiyah merupakan wadah perkaderan Ikatan Mahasiswa Muhammadiyah di lingkungan FKIP Universitas Muhammadiyah Surakarta. Kami berkomitmen membentuk akademisi Islam yang berakhlak mulia, berlandaskan intelektualitas, humanitas, dan religiusitas.'}
               </p>
               <div className="flex flex-wrap gap-3 mb-8">
                 {pilarIMM.map((p) => (
@@ -147,18 +157,12 @@ export default function Beranda() {
               <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -ml-16 -mb-16" />
               <span className="text-xs font-bold uppercase tracking-widest text-white/70 block mb-3">Visi Utama</span>
-              <p className="text-xl md:text-2xl italic leading-relaxed font-medium relative z-10">
-                &ldquo;Unggul dalam keilmuan, mandiri dalam berkarya, dan bertaqwa dalam mengabdi
-                demi kemaslahatan umat dan bangsa.&rdquo;
+              <p className="text-2xl md:text-3xl italic leading-relaxed font-medium relative z-10">
+                &ldquo;{settings?.vision_text || 'Unggul dalam keilmuan, mandiri dalam berkarya, dan bertaqwa dalam mengabdi demi kemaslahatan umat dan bangsa.'}&rdquo;
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { num: '01', title: 'Internalisasi Nilai', desc: 'Menguatkan internalisasi nilai-nilai Al-Islam dan Kemuhammadiyahan.' },
-                { num: '02', title: 'Budaya Literasi', desc: 'Meningkatkan budaya literasi dan daya kritis mahasiswa.' },
-                { num: '03', title: 'Aksi Kemanusiaan', desc: 'Responsif terhadap isu sosial dan gerakan kemanusiaan inklusif.' },
-                { num: '04', title: 'Kemandirian Kader', desc: 'Mengembangkan potensi kewirausahaan dan soft skills.' },
-              ].map((misi) => (
+              {missionItems.map((misi) => (
                 <div key={misi.num} className="p-6 rounded-xl bg-[#fff8f0] group hover:bg-gradient-to-br hover:from-[#f97316] hover:to-[#f0a500] transition-all duration-300 cursor-default">
                   <div className="font-anton text-4xl text-accent mb-3 group-hover:text-white transition-colors">{misi.num}</div>
                   <h3 className="font-semibold text-base mb-1 group-hover:text-white transition-colors">{misi.title}</h3>
@@ -248,15 +252,23 @@ export default function Beranda() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -ml-24 -mb-24" />
             <div className="relative z-10 text-center max-w-2xl mx-auto">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">Siap Bergabung?</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">{settings?.cta_text || 'Siap Bergabung?'}</h2>
               <p className="text-white/80 text-base md:text-lg mb-8">
                 Jadilah bagian dari generasi pendidik yang berkarakter, cerdas, dan religius. Bersama kita bangun masa depan yang lebih cerah.
               </p>
-              <Link href="/kontak"
-                className="inline-flex items-center gap-2 bg-white text-accent font-bold px-10 py-4 rounded-full text-base hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
-                Daftar Sekarang
-                <ArrowRight className="w-5 h-5" />
-              </Link>
+              {ctaIsExternal ? (
+                <a href={settings!.cta_link} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-white text-accent font-bold px-10 py-4 rounded-full text-base hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
+                  {settings?.cta_link_label || 'Daftar Sekarang'}
+                  <ArrowRight className="w-5 h-5" />
+                </a>
+              ) : (
+                <Link href={settings?.cta_link || '/kontak'}
+                  className="inline-flex items-center gap-2 bg-white text-accent font-bold px-10 py-4 rounded-full text-base hover:scale-105 active:scale-95 transition-all shadow-xl shadow-black/10">
+                  {settings?.cta_link_label || 'Daftar Sekarang'}
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { Artikel, GaleriFoto, Pengurus, Prestasi } from '@/types'
+import { Artikel, GaleriFoto, Pengurus, Prestasi, SiteSettings, Kategori, Periode } from '@/types'
 import { articles as staticArticles, galeri as staticGaleri, pengurus as staticPengurus, prestasi as staticPrestasi } from './data'
 
 const supabase = createClient()
@@ -88,4 +88,84 @@ export async function savePrestasi(p: Prestasi) {
 
 export async function deletePrestasi(id: string) {
   await supabase.from('prestasi').delete().eq('id', id)
+}
+
+// --- SITE SETTINGS ---
+const defaultSettings: SiteSettings = {
+  hero_tagline: 'Universitas Muhammadiyah Surakarta',
+  hero_subtitle: 'Anggun dalam moral, unggul dalam intelektual',
+  hero_cover: '/hero.jpeg',
+  hero_stat_label: 'Kader Aktif',
+  hero_stat_value: '71+',
+  about_image: '/hero.jpeg',
+  about_text: 'IMM Siti Munjiyah merupakan wadah perkaderan Ikatan Mahasiswa Muhammadiyah di lingkungan FKIP Universitas Muhammadiyah Surakarta.',
+  vision_text: 'Unggul dalam keilmuan, mandiri dalam berkarya, dan bertaqwa dalam mengabdi demi kemaslahatan umat dan bangsa.',
+  mission_items: JSON.stringify([
+    'Menguatkan internalisasi nilai-nilai Al-Islam dan Kemuhammadiyahan.',
+    'Meningkatkan budaya literasi dan daya kritis mahasiswa.',
+    'Responsif terhadap isu sosial dan gerakan kemanusiaan inklusif.',
+    'Mengembangkan potensi kewirausahaan dan soft skills.'
+  ]),
+  kontak_whatsapp: '6281234567890',
+  kontak_instagram: 'immsitimunjiyah_fkip',
+  kontak_tiktok: 'immsitimunjiyah_fkip',
+  kontak_youtube: '@immsitimunjiyah',
+  kontak_twitter: 'immsitimunjiyah',
+  kontak_email: 'immsitimunjiyah@ums.ac.id',
+  kontak_alamat: 'FKIP UMS, Kampus 1, Pabelan, Kartasura, Sukoharjo',
+  cta_text: 'Siap Bergabung? Jadilah bagian dari generasi pendidik yang berkarakter, cerdas, dan religius.',
+  cta_link: 'https://forms.google.com/...',
+  cta_link_label: 'Daftar Sekarang',
+}
+
+export async function getSettings(): Promise<SiteSettings> {
+  try {
+    const { data } = await supabase.from('site_settings').select('*').single()
+    if (data) return data as SiteSettings
+  } catch {}
+  return defaultSettings
+}
+
+export async function saveSettings(s: SiteSettings) {
+  const { error } = await supabase.from('site_settings').upsert({ id: '1', ...s })
+  if (error) throw error
+}
+
+// --- KATEGORI ---
+export async function getKategoris(type: 'artikel' | 'galeri'): Promise<Kategori[]> {
+  try {
+    const { data } = await supabase.from('kategori').select('*').eq('type', type).order('order')
+    if (data && data.length > 0) return data as Kategori[]
+  } catch {}
+  const defaults = type === 'artikel' 
+    ? [{ id: 'agenda', type: 'artikel' as const, name: 'Agenda', order: 1 }, { id: 'kegiatan', type: 'artikel' as const, name: 'Kegiatan', order: 2 }]
+    : [{ id: 'kegiatan', type: 'galeri' as const, name: 'Kegiatan', order: 1 }, { id: 'prestasi', type: 'galeri' as const, name: 'Prestasi', order: 2 }]
+  return defaults
+}
+
+export async function saveKategori(k: Kategori) {
+  const { error } = await supabase.from('kategori').upsert(k)
+  if (error) throw error
+}
+
+export async function deleteKategori(id: string) {
+  await supabase.from('kategori').delete().eq('id', id)
+}
+
+// --- PERIODE ---
+export async function getPeriodes(): Promise<Periode[]> {
+  try {
+    const { data } = await supabase.from('periode').select('*').order('label', { ascending: false })
+    if (data && data.length > 0) return data as Periode[]
+  } catch {}
+  return [{ id: '1', label: '2025/2026', is_current: true }]
+}
+
+export async function savePeriode(p: Periode) {
+  const { error } = await supabase.from('periode').upsert(p)
+  if (error) throw error
+}
+
+export async function deletePeriode(id: string) {
+  await supabase.from('periode').delete().eq('id', id)
 }

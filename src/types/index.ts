@@ -2,7 +2,7 @@ export interface Artikel {
   id: string
   title: string
   slug: string
-  category: 'Agenda' | 'Artikel' | 'Hikmah' | 'Kegiatan' | 'Kaderisasi' | 'Intelektual' | 'Sosial' | 'Prestasi'
+  category: string
   author: string
   published_at: string
   content: string
@@ -38,13 +38,6 @@ export interface Pengurus {
   order: number
 }
 
-export interface Admin {
-  id: string
-  email: string
-  role: 'super_admin' | 'developer'
-  created_at: string
-}
-
 export interface Prestasi {
   id: string
   title: string
@@ -52,10 +45,37 @@ export interface Prestasi {
   order: number
 }
 
-export interface KontakInfo {
+export interface SiteSettings {
+  hero_tagline: string
+  hero_subtitle: string
+  hero_cover: string
+  hero_stat_label: string
+  hero_stat_value: string
+  about_image: string
+  about_text: string
+  vision_text: string
+  mission_items: string
+  kontak_whatsapp: string
+  kontak_instagram: string
+  kontak_tiktok: string
+  kontak_youtube: string
+  kontak_twitter: string
+  kontak_email: string
+  kontak_alamat: string
+  cta_text: string
+  cta_link: string
+  cta_link_label: string
+}
+
+export interface Kategori {
   id: string
-  type: 'whatsapp' | 'instagram' | 'tiktok' | 'youtube' | 'twitter' | 'email' | 'alamat'
+  type: 'artikel' | 'galeri'
+  name: string
+  order: number
+}
+
+export interface Periode {
+  id: string
   label: string
-  value: string
-  url: string
+  is_current: boolean
 }
