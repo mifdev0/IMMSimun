@@ -129,11 +129,9 @@ function Form() {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
                   <option value="">Pilih jabatan</option>
                   <option value="Ketua Umum">Ketua Umum</option>
-                  <option value="Wakil Ketua Umum">Wakil Ketua Umum</option>
                   <option value="Sekretaris Umum">Sekretaris Umum</option>
-                  <option value="Wakil Sekretaris Umum">Wakil Sekretaris Umum</option>
                   <option value="Bendahara Umum">Bendahara Umum</option>
-                  <option value="Wakil Bendahara Umum">Wakil Bendahara Umum</option>
+                  <option value="Bendahara Satu">Bendahara Satu</option>
                 </select>
               ) : (
                 <input type="text" value={jabatan} onChange={(e) => setJabatan(e.target.value)} required
@@ -161,13 +159,13 @@ function Form() {
                   <option value="">Pilih bidang</option>
                   <option value="Bidang Organisasi">Bidang Organisasi</option>
                   <option value="Bidang Kader">Bidang Kader</option>
-                  <option value="Bidang HPKP">Bidang HPKP</option>
-                  <option value="Bidang RPK">Bidang RPK</option>
-                  <option value="Bidang SPM">Bidang SPM</option>
+                  <option value="Bidang Hikmah, Politik dan Kebijakan Publik">Bidang Hikmah, Politik dan Kebijakan Publik</option>
+                  <option value="Bidang Riset dan Pengembangan Keilmuan">Bidang Riset dan Pengembangan Keilmuan</option>
+                  <option value="Bidang Sosial dan Pemberdayaan Masyarakat">Bidang Sosial dan Pemberdayaan Masyarakat</option>
                   <option value="Bidang IMMawati">Bidang IMMawati</option>
-                  <option value="Bidang TKK">Bidang TKK</option>
-                  <option value="Bidang Medkom">Bidang Medkom</option>
-                  <option value="Bidang SBO">Bidang SBO</option>
+                  <option value="Bidang Tabligh dan Kajian Keislaman">Bidang Tabligh dan Kajian Keislaman</option>
+                  <option value="Bidang Media dan Komunikasi">Bidang Media dan Komunikasi</option>
+                  <option value="Bidang Seni, Budaya dan Olahraga">Bidang Seni, Budaya dan Olahraga</option>
                 </select>
               ) : kelompok === 'unit' ? (
                 <select value={bidangUnit} onChange={(e) => setBidangUnit(e.target.value)}

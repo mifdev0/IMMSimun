@@ -17,8 +17,10 @@ const tabs: { key: GroupKey; label: string }[] = [
 ]
 
 const bidangList = [
-  'Bidang Organisasi', 'Bidang Kader', 'Bidang HPKP', 'Bidang RPK',
-  'Bidang SPM', 'Bidang IMMawati', 'Bidang TKK', 'Bidang Medkom', 'Bidang SBO',
+  'Bidang Organisasi', 'Bidang Kader', 'Bidang Hikmah, Politik dan Kebijakan Publik',
+  'Bidang Riset dan Pengembangan Keilmuan', 'Bidang Sosial dan Pemberdayaan Masyarakat',
+  'Bidang IMMawati', 'Bidang Tabligh dan Kajian Keislaman',
+  'Bidang Media dan Komunikasi', 'Bidang Seni, Budaya dan Olahraga',
 ]
 
 const unitList = ['LO BUMK', 'LSO PUSAKA', 'LSO LENTERA', 'LSO IMD', 'LSO GARDA']
