@@ -24,8 +24,10 @@ function Form() {
   useEffect(() => {
     const group = searchParams.get('group')
     const unit = searchParams.get('unit')
+    const period = searchParams.get('period')
     if (group) setKelompok(group)
     if (unit) setBidangUnit(unit)
+    if (period) setPeriode(period)
     if (editId) {
       getPengurus().then((all) => {
         const item = all.find((p) => p.id === editId)
