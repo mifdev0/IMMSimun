@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, FileText, Image, Users, Medal, Settings, Tag, Calendar, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, FileText, Image, Users, Medal, Settings, Tag, LogOut, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 const sidebarLinks = [
@@ -13,7 +13,6 @@ const sidebarLinks = [
   { href: '/admin/prestasi', icon: Medal, label: 'Prestasi' },
   { href: '/admin/settings', icon: Settings, label: 'Pengaturan' },
   { href: '/admin/kategori', icon: Tag, label: 'Kategori' },
-  { href: '/admin/periode', icon: Calendar, label: 'Periode' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
