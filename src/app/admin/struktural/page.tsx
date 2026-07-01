@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Pencil, Trash2, User, ArrowUp, ArrowDown, CalendarPlus } from 'lucide-react'
 import { getPengurus, deletePengurus, savePengurus, getPeriodes, savePeriode } from '@/lib/store'
+import ConfirmModal from '@/components/ConfirmModal'
 
 type GroupKey = 'pimpinan' | 'bidang' | 'unit'
 
@@ -62,11 +63,20 @@ export default function AdminStruktural() {
     setPeriods(updated)
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Hapus pengurus ini?')) {
-      await deletePengurus(id)
-      refresh()
-    }
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = (id: string) => {
+    setDeleteTarget(id)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    await deletePengurus(deleteTarget)
+    setDeleting(false)
+    setDeleteTarget(null)
+    refresh()
   }
 
   const moveUp = async (id: string) => {
@@ -208,7 +218,7 @@ export default function AdminStruktural() {
                     <div className="flex items-center justify-end gap-1 md:gap-2">
                       <Link href={`/admin/struktural/tambah?id=${p.id}`}
                         className="p-1.5 md:p-2 rounded-lg text-gray-400 hover:text-accent hover:bg-[rgba(249,115,22,0.06)] transition-all inline-flex"><Pencil className="w-3.5 h-3.5 md:w-4 md:h-4" /></Link>
-                      <button onClick={() => handleDelete(p.id)}
+                      <button onClick={() => setDeleteTarget(p.id)}
                         className="p-1.5 md:p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"><Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" /></button>
                     </div>
                   </td>
@@ -221,6 +231,8 @@ export default function AdminStruktural() {
           <div className="text-center py-12 text-gray-muted text-sm">Belum ada pengurus untuk periode ini.</div>
         )}
       </div>
+
+      <ConfirmModal open={!!deleteTarget} title="Hapus Pengurus" message="Yakin ingin menghapus pengurus ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
     </div>
   )
 }

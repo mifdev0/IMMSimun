@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { savePrestasi, getPrestasi } from '@/lib/store'
 
@@ -12,6 +12,7 @@ function Form() {
   const editId = searchParams.get('id')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (editId) {
@@ -27,6 +28,7 @@ function Form() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSaving(true)
     const id = editId || String(Date.now())
     const existing = await getPrestasi()
     const maxOrder = existing.reduce((max, p) => Math.max(max, p.order), 0)
@@ -36,6 +38,7 @@ function Form() {
       description,
       order: editId ? (existing.find((p) => p.id === editId)?.order || maxOrder + 1) : maxOrder + 1,
     })
+    setSaving(false)
     router.push('/admin/prestasi')
   }
 
@@ -63,9 +66,10 @@ function Form() {
         </div>
 
         <div className="flex items-center gap-3 mt-6">
-          <button type="submit"
-            className="bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg active:scale-[0.98]">
-            {editId ? 'Simpan Perubahan' : 'Simpan'}
+          <button type="submit" disabled={saving}
+            className="bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white font-semibold px-8 py-3 rounded-full transition-all hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {saving ? 'Menyimpan...' : (editId ? 'Simpan Perubahan' : 'Simpan')}
           </button>
           <Link href="/admin/prestasi"
             className="px-6 py-3 rounded-full border border-gray-200 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-all">

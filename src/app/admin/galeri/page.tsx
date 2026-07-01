@@ -4,18 +4,27 @@ import Link from 'next/link'
 import { Plus, Pencil, Trash2, ImageIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getGaleri, deleteGaleri } from '@/lib/store'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function AdminGaleri() {
   const [fotos, setFotos] = useState<any[]>([])
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { getGaleri().then(setFotos) }, [])
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Hapus foto ini?')) {
-      await deleteGaleri(id)
-      const data = await getGaleri()
-      setFotos(data)
-    }
+  const handleDelete = (id: string) => {
+    setDeleteTarget(id)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    await deleteGaleri(deleteTarget)
+    setDeleting(false)
+    setDeleteTarget(null)
+    const data = await getGaleri()
+    setFotos(data)
   }
 
   return (
@@ -41,7 +50,7 @@ export default function AdminGaleri() {
                 <button className="p-2 rounded-lg bg-white/20 text-white hover:bg-white/40 transition-all">
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(foto.id)} className="p-2 rounded-lg bg-white/20 text-white hover:bg-red-400 transition-all">
+                <button onClick={() => setDeleteTarget(foto.id)} className="p-2 rounded-lg bg-white/20 text-white hover:bg-red-400 transition-all">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -53,6 +62,8 @@ export default function AdminGaleri() {
           </div>
         ))}
       </div>
+
+      <ConfirmModal open={!!deleteTarget} title="Hapus Foto" message="Yakin ingin menghapus foto ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
     </div>
   )
 }

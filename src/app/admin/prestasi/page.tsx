@@ -4,19 +4,28 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, Medal } from 'lucide-react'
 import { getPrestasi, deletePrestasi, savePrestasi } from '@/lib/store'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function AdminPrestasi() {
   const [list, setList] = useState<any[]>([])
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { getPrestasi().then((data) => setList(data.sort((a, b) => a.order - b.order))) }, [])
 
   const refresh = async () => { const data = await getPrestasi(); setList(data.sort((a, b) => a.order - b.order)) }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Hapus prestasi ini?')) {
-      await deletePrestasi(id)
-      refresh()
-    }
+  const handleDelete = (id: string) => {
+    setDeleteTarget(id)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    await deletePrestasi(deleteTarget)
+    setDeleting(false)
+    setDeleteTarget(null)
+    refresh()
   }
 
   const moveUp = async (id: string) => {
@@ -90,7 +99,7 @@ export default function AdminPrestasi() {
                       <Link href={`/admin/prestasi/tambah?id=${p.id}`} className="p-2 rounded-lg text-gray-400 hover:text-accent hover:bg-[rgba(249,115,22,0.06)] transition-all inline-flex">
                         <Pencil className="w-4 h-4" />
                       </Link>
-                      <button onClick={() => handleDelete(p.id)} className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                      <button onClick={() => setDeleteTarget(p.id)} className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -104,6 +113,8 @@ export default function AdminPrestasi() {
           <div className="text-center py-12 text-gray-muted text-sm">Belum ada data prestasi.</div>
         )}
       </div>
+
+      <ConfirmModal open={!!deleteTarget} title="Hapus Prestasi" message="Yakin ingin menghapus prestasi ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
     </div>
   )
 }

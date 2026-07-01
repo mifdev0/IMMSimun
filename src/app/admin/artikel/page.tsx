@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2, Search } from 'lucide-react'
 import { getArticles, deleteArticle } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
+import ConfirmModal from '@/components/ConfirmModal'
 
 export default function AdminArtikel() {
   const [articles, setArticles] = useState<any[]>([])
@@ -16,17 +17,25 @@ export default function AdminArtikel() {
   }, [])
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'published'>('all')
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const refresh = async () => {
     const all = await getArticles()
     setArticles(all.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()))
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Hapus artikel ini?')) {
-      await deleteArticle(id)
-      refresh()
-    }
+  const handleDelete = (id: string) => {
+    setDeleteTarget(id)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    await deleteArticle(deleteTarget)
+    setDeleting(false)
+    setDeleteTarget(null)
+    refresh()
   }
 
   const filtered = (articles || getArticles()).filter((a) => {
@@ -100,7 +109,7 @@ export default function AdminArtikel() {
                         className="p-1.5 md:p-2 rounded-lg text-gray-400 hover:text-accent hover:bg-[rgba(249,115,22,0.06)] transition-all">
                         <Pencil className="w-3.5 h-3.5 md:w-4 md:h-4" />
                       </Link>
-                      <button onClick={() => handleDelete(a.id)} className="p-1.5 md:p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                      <button onClick={() => setDeleteTarget(a.id)} className="p-1.5 md:p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all">
                         <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
                       </button>
                     </div>
@@ -114,6 +123,8 @@ export default function AdminArtikel() {
           <div className="text-center py-12 text-gray-muted text-sm">Tidak ada artikel ditemukan.</div>
         )}
       </div>
+
+      <ConfirmModal open={!!deleteTarget} title="Hapus Artikel" message="Yakin ingin menghapus artikel ini?" onConfirm={handleConfirmDelete} onCancel={() => setDeleteTarget(null)} loading={deleting} />
     </div>
   )
 }

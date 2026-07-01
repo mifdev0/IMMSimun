@@ -5,11 +5,27 @@ import StarterKit from '@tiptap/starter-kit'
 import ImageExtension from '@tiptap/extension-image'
 import LinkExtension from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
+import { Extension } from '@tiptap/core'
 import { useRef, useCallback } from 'react'
+
+
 import {
   Bold, Italic, Heading2, List, ListOrdered, Quote, Undo, Redo,
-  ImageIcon, Link2, AlignLeft, AlignCenter, AlignRight, Minus, Plus,
+  ImageIcon, Link2, AlignLeft, AlignCenter, AlignRight, AlignJustify, Minus, Plus,
 } from 'lucide-react'
+
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return { types: ['textStyle'] }
+  },
+  addGlobalAttributes() {
+    return [{
+      types: this.options.types,
+      attributes: { fontSize: { default: null, parseHTML: el => el.style.fontSize?.replace('px', '') || null, renderHTML: attrs => attrs.fontSize ? { style: `font-size: ${attrs.fontSize}px` } : {} } },
+    }]
+  },
+})
 
 interface Props {
   content: string
@@ -24,7 +40,8 @@ export default function RichEditor({ content, onChange }: Props) {
       StarterKit,
       ImageExtension.configure({ inline: false }),
       LinkExtension.configure({ openOnClick: false }),
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextAlign.configure({ types: ['heading', 'paragraph'], alignments: ['left', 'center', 'right', 'justify'] }),
+      FontSize,
     ],
     content: content || '<p></p>',
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -63,6 +80,7 @@ export default function RichEditor({ content, onChange }: Props) {
 
   const isImage = editor.isActive('image')
   const imgWidth = parseInt(editor.getAttributes('image')?.width || '100')
+  const fontSize = editor.getAttributes('textStyle')?.fontSize || '16'
 
   const ToolBtn = ({ onClick, active, children, title }: any) => (
     <button type="button" title={title} onClick={onClick}
@@ -96,6 +114,9 @@ export default function RichEditor({ content, onChange }: Props) {
         </ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Rata kanan">
           <AlignRight className="w-4 h-4" />
+        </ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} title="Rata kanan-kiri">
+          <AlignJustify className="w-4 h-4" />
         </ToolBtn>
         <Divider />
         <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="List">
@@ -134,6 +155,16 @@ export default function RichEditor({ content, onChange }: Props) {
             </ToolBtn>
           </>
         )}
+
+        <Divider />
+        <select value={fontSize} onChange={(e) => editor.chain().focus().setMark('textStyle', { fontSize: e.target.value }).run()}
+          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none">
+          <option value="16">Normal (16px)</option>
+          <option value="14">Kecil (14px)</option>
+          <option value="18">Sedang (18px)</option>
+          <option value="20">Besar (20px)</option>
+          <option value="24">Judul (24px)</option>
+        </select>
 
         <div className="ml-auto flex gap-0.5">
           <ToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
-import { saveGaleri } from '@/lib/store'
+import { saveGaleri, getKategoris } from '@/lib/store'
 import ImageCropper from '@/components/ImageCropper'
 
 export default function TambahFoto() {
@@ -13,8 +13,16 @@ export default function TambahFoto() {
   const [image, setImage] = useState('')
   const [cropTarget, setCropTarget] = useState('')
   const [caption, setCaption] = useState('')
-  const [kategori, setKategori] = useState('Kaderisasi')
+  const [categories, setCategories] = useState<any[]>([])
+  const [kategori, setKategori] = useState('')
   const [tanggal, setTanggal] = useState(new Date().toISOString().split('T')[0])
+
+  useEffect(() => {
+    getKategoris('galeri').then((kats) => {
+      setCategories(kats)
+      if (kats.length > 0) setKategori(kats[0].name)
+    })
+  }, [])
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -88,11 +96,9 @@ export default function TambahFoto() {
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Kategori Kegiatan</label>
               <select value={kategori} onChange={(e) => setKategori(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
-                <option>Kaderisasi</option>
-                <option>Intelektual</option>
-                <option>Sosial</option>
-                <option>Kegiatan</option>
-                <option>Prestasi</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
               </select>
             </div>
             <div>
