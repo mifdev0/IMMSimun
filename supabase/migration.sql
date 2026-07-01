@@ -60,7 +60,46 @@ CREATE TABLE IF NOT EXISTS prestasi (
   "order" INTEGER NOT NULL DEFAULT 0
 );
 
--- 6. ADMINS
+-- 6. SITE SETTINGS
+CREATE TABLE IF NOT EXISTS site_settings (
+  id TEXT PRIMARY KEY DEFAULT '1',
+  hero_tagline TEXT DEFAULT '',
+  hero_subtitle TEXT DEFAULT '',
+  hero_cover TEXT DEFAULT '',
+  hero_stat_label TEXT DEFAULT '',
+  hero_stat_value TEXT DEFAULT '',
+  about_image TEXT DEFAULT '',
+  about_text TEXT DEFAULT '',
+  vision_text TEXT DEFAULT '',
+  mission_items TEXT DEFAULT '',
+  kontak_whatsapp TEXT DEFAULT '',
+  kontak_instagram TEXT DEFAULT '',
+  kontak_tiktok TEXT DEFAULT '',
+  kontak_youtube TEXT DEFAULT '',
+  kontak_twitter TEXT DEFAULT '',
+  kontak_email TEXT DEFAULT '',
+  kontak_alamat TEXT DEFAULT '',
+  cta_text TEXT DEFAULT '',
+  cta_link TEXT DEFAULT '',
+  cta_link_label TEXT DEFAULT ''
+);
+
+-- 7. KATEGORI (artikel & galeri)
+CREATE TABLE IF NOT EXISTS kategori (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('artikel', 'galeri')),
+  name TEXT NOT NULL,
+  "order" INTEGER NOT NULL DEFAULT 0
+);
+
+-- 8. PERIODE (struktural)
+CREATE TABLE IF NOT EXISTS periode (
+  id TEXT PRIMARY KEY,
+  label TEXT NOT NULL,
+  is_current BOOLEAN NOT NULL DEFAULT false
+);
+
+-- 9. ADMINS
 CREATE TABLE IF NOT EXISTS admins (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT NOT NULL UNIQUE,
