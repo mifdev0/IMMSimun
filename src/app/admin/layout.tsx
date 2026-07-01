@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, FileText, Image, Users, Medal, Settings, Tag, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, FileText, Image, Users, Medal, Map, Settings, Tag, LogOut, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Toast from '@/components/Toast'
 
@@ -12,6 +12,7 @@ const sidebarLinks = [
   { href: '/admin/galeri', icon: Image, label: 'Galeri' },
   { href: '/admin/struktural', icon: Users, label: 'Struktural' },
   { href: '/admin/prestasi', icon: Medal, label: 'Prestasi' },
+  { href: '/admin/roadmap', icon: Map, label: 'Roadmap' },
   { href: '/admin/settings', icon: Settings, label: 'Pengaturan' },
   { href: '/admin/kategori', icon: Tag, label: 'Kategori' },
 ]

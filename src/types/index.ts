@@ -81,3 +81,13 @@ export interface Periode {
   label: string
   is_current: boolean
 }
+
+export interface RoadmapItem {
+  id: string
+  title: string
+  description: string
+  date: string
+  status: 'planned' | 'ongoing' | 'completed'
+  icon: string
+  order: number
+}

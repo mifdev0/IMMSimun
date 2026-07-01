@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/visi-misi', label: 'Visi & Misi' },
   { href: '/artikel', label: 'Artikel' },
   { href: '/galeri', label: 'Galeri' },
+  { href: '/roadmap', label: 'Roadmap' },
   { href: '/kontak', label: 'Kontak' },
 ]
 

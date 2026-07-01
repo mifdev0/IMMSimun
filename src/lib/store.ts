@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { Artikel, GaleriFoto, Pengurus, Prestasi, SiteSettings, Kategori, Periode } from '@/types'
+import { Artikel, GaleriFoto, Pengurus, Prestasi, SiteSettings, Kategori, Periode, RoadmapItem } from '@/types'
 import { articles as staticArticles, galeri as staticGaleri, pengurus as staticPengurus, prestasi as staticPrestasi } from './data'
 
 const supabase = createClient()
@@ -170,4 +170,22 @@ export async function savePeriode(p: Periode) {
 
 export async function deletePeriode(id: string) {
   await supabase.from('periode').delete().eq('id', id)
+}
+
+// --- ROADMAP ---
+export async function getRoadmap(): Promise<RoadmapItem[]> {
+  try {
+    const { data } = await supabase.from('roadmap').select('*').order('date', { ascending: true })
+    if (data && data.length > 0) return data as RoadmapItem[]
+  } catch {}
+  return []
+}
+
+export async function saveRoadmapItem(item: RoadmapItem) {
+  const { error } = await supabase.from('roadmap').upsert(item)
+  if (error) throw error
+}
+
+export async function deleteRoadmapItem(id: string) {
+  await supabase.from('roadmap').delete().eq('id', id)
 }
