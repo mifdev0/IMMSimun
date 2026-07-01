@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getPengurus, getPeriodes } from '@/lib/store'
+import { BIDANG_LIST, BIDANG_SHORT, BIDANG_DESC } from '@/lib/bidang'
 
 type GroupKey = 'pimpinan' | 'bidang' | 'unit'
 
@@ -11,17 +12,7 @@ const tabs: { key: GroupKey; label: string }[] = [
   { key: 'unit', label: '5 Unit' },
 ]
 
-const bidangList = [
-  'Bidang Organisasi',
-  'Bidang Kader',
-  'Bidang Hikmah, Politik dan Kebijakan Publik',
-  'Bidang Riset dan Pengembangan Keilmuan',
-  'Bidang Sosial dan Pemberdayaan Masyarakat',
-  'Bidang IMMawati',
-  'Bidang Tabligh dan Kajian Keislaman',
-  'Bidang Media dan Komunikasi',
-  'Bidang Seni, Budaya dan Olahraga',
-]
+const bidangList = BIDANG_LIST
 
 const unitList = [
   'LO BUMK',
@@ -115,17 +106,7 @@ export default function Struktural() {
     const sekretaris = currentBidangMembers.find((p) => p.position === 'Sekretaris Bidang')
     const anggota = currentBidangMembers.filter((p) => p.position === 'Anggota Bidang')
 
-    const bidangIcons: Record<string, string> = {
-      'Bidang Organisasi': 'Organisasi',
-      'Bidang Kader': 'Kader',
-      'Bidang HPKP': 'HPKP',
-      'Bidang RPK': 'RPK',
-      'Bidang SPM': 'SPM',
-      'Bidang IMMawati': 'IMMawati',
-      'Bidang TKK': 'TKK',
-      'Bidang Medkom': 'Medkom',
-      'Bidang SBO': 'SBO',
-    }
+    const bidangIcons = BIDANG_SHORT
 
     return (
       <div className="pb-20 bg-white min-h-screen">
@@ -148,18 +129,8 @@ export default function Struktural() {
 
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-bold">{selectedBidang}</h2>
-              <p className="text-sm text-gray-muted mt-2 max-w-2xl mx-auto">
-                {selectedBidang === 'Bidang Organisasi' && 'Mengelola struktur organisasi, administrasi, dan pengembangan sistem keorganisasian komisariat.'}
-                {selectedBidang === 'Bidang Kader' && 'Bertanggung jawab dalam proses perkaderan formal dan informal seluruh kader IMM Siti Munjiyah.'}
-                {selectedBidang === 'Bidang HPKP' && 'Mengawal isu hikmah, politik, dan kebijakan publik di lingkungan kampus maupun masyarakat luas.'}
-                {selectedBidang === 'Bidang RPK' && 'Mendorong riset, pengembangan keilmuan, dan inovasi akademik di kalangan kader.'}
-                {selectedBidang === 'Bidang SPM' && 'Menggerakkan aksi sosial dan pemberdayaan masyarakat sebagai wujud humanitas IMM.'}
-                {selectedBidang === 'Bidang IMMawati' && 'Mengelola dan memberdayakan potensi kader IMMawati dalam berbagai aspek organisasi.'}
-                {selectedBidang === 'Bidang TKK' && 'Menangani kegiatan tablig, kajian keislaman, dan pengembangan spiritual kader.'}
-                {selectedBidang === 'Bidang Medkom' && 'Mengelola media komunikasi, publikasi, dan informasi digital komisariat.'}
-                {selectedBidang === 'Bidang SBO' && 'Mengembangkan seni, budaya, dan olahraga sebagai wahana kreativitas kader.'}
-              </p>
+              <h2 className="text-2xl md:text-3xl font-bold">{BIDANG_SHORT[selectedBidang] || selectedBidang}</h2>
+              <p className="text-sm text-gray-muted mt-2 max-w-2xl mx-auto">{BIDANG_DESC[selectedBidang]}</p>
             </div>
 
             {ketua && (

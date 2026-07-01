@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Pencil, Trash2, User, ArrowUp, ArrowDown, CalendarPlus } from 'lucide-react'
 import { getPengurus, deletePengurus, savePengurus, getPeriodes, savePeriode } from '@/lib/store'
+import { BIDANG_LIST, BIDANG_SHORT } from '@/lib/bidang'
 import ConfirmModal from '@/components/ConfirmModal'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import { showToast } from '@/components/Toast'
@@ -16,12 +17,7 @@ const tabs: { key: GroupKey; label: string }[] = [
   { key: 'unit', label: 'Unit' },
 ]
 
-const bidangList = [
-  'Bidang Organisasi', 'Bidang Kader', 'Bidang Hikmah, Politik dan Kebijakan Publik',
-  'Bidang Riset dan Pengembangan Keilmuan', 'Bidang Sosial dan Pemberdayaan Masyarakat',
-  'Bidang IMMawati', 'Bidang Tabligh dan Kajian Keislaman',
-  'Bidang Media dan Komunikasi', 'Bidang Seni, Budaya dan Olahraga',
-]
+const bidangList = BIDANG_LIST
 
 const unitList = ['LO BUMK', 'LSO PUSAKA', 'LSO LENTERA', 'LSO IMD', 'LSO GARDA']
 
@@ -185,7 +181,7 @@ export default function AdminStruktural() {
               className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
                 selectedBidang === b ? 'bg-gradient-to-r from-[#f97316] to-[#f0a500] text-white' : 'bg-white border border-gray-200 text-gray-500 hover:border-accent hover:text-accent'
               }`}>
-              {b.replace('Bidang ', '')}
+              {BIDANG_SHORT[b]}
             </button>
           ))}
         </div>

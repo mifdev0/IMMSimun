@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
 import { savePengurus, getPengurus, getPeriodes } from '@/lib/store'
+import { BIDANG_LIST, BIDANG_SHORT } from '@/lib/bidang'
 import ImageCropper from '@/components/ImageCropper'
 import LoadingOverlay from '@/components/LoadingOverlay'
 import { showToast } from '@/components/Toast'
@@ -157,15 +158,9 @@ function Form() {
                 <select value={bidangUnit} onChange={(e) => setBidangUnit(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
                   <option value="">Pilih bidang</option>
-                  <option value="Bidang Organisasi">Bidang Organisasi</option>
-                  <option value="Bidang Kader">Bidang Kader</option>
-                  <option value="Bidang Hikmah, Politik dan Kebijakan Publik">Bidang Hikmah, Politik dan Kebijakan Publik</option>
-                  <option value="Bidang Riset dan Pengembangan Keilmuan">Bidang Riset dan Pengembangan Keilmuan</option>
-                  <option value="Bidang Sosial dan Pemberdayaan Masyarakat">Bidang Sosial dan Pemberdayaan Masyarakat</option>
-                  <option value="Bidang IMMawati">Bidang IMMawati</option>
-                  <option value="Bidang Tabligh dan Kajian Keislaman">Bidang Tabligh dan Kajian Keislaman</option>
-                  <option value="Bidang Media dan Komunikasi">Bidang Media dan Komunikasi</option>
-                  <option value="Bidang Seni, Budaya dan Olahraga">Bidang Seni, Budaya dan Olahraga</option>
+                  {BIDANG_LIST.map((b) => (
+                    <option key={b} value={b}>{BIDANG_SHORT[b]}</option>
+                  ))}
                 </select>
               ) : kelompok === 'unit' ? (
                 <select value={bidangUnit} onChange={(e) => setBidangUnit(e.target.value)}
