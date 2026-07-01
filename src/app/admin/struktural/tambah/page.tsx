@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Upload, X, Crop } from 'lucide-react'
 import Link from 'next/link'
-import { savePengurus, getPengurus } from '@/lib/store'
+import { savePengurus, getPengurus, getPeriodes } from '@/lib/store'
 import ImageCropper from '@/components/ImageCropper'
 
 function Form() {
@@ -20,14 +20,22 @@ function Form() {
   const [periode, setPeriode] = useState('2025/2026')
   const [foto, setFoto] = useState('')
   const [cropTarget, setCropTarget] = useState('')
+  const [periods, setPeriods] = useState<any[]>([])
 
   useEffect(() => {
-    const group = searchParams.get('group')
-    const unit = searchParams.get('unit')
-    const period = searchParams.get('period')
-    if (group) setKelompok(group)
-    if (unit) setBidangUnit(unit)
-    if (period) setPeriode(period)
+    getPeriodes().then((p) => {
+      setPeriods(p)
+      const group = searchParams.get('group')
+      const unit = searchParams.get('unit')
+      const period = searchParams.get('period')
+      if (group) setKelompok(group)
+      if (unit) setBidangUnit(unit)
+      if (period) setPeriode(period)
+      else {
+        const current = p.find((per) => per.is_current)
+        if (current) setPeriode(current.label)
+      }
+    })
     if (editId) {
       getPengurus().then((all) => {
         const item = all.find((p) => p.id === editId)
@@ -159,9 +167,14 @@ function Form() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Periode</label>
-              <input type="text" value={periode} onChange={(e) => setPeriode(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm" />
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Periode <span className="text-red-500">*</span></label>
+              <select value={periode} onChange={(e) => setPeriode(e.target.value)} required
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-[#fff8f0] focus:outline-none focus:ring-2 focus:ring-[#f97316]/30 focus:border-[#f97316] transition-all text-sm">
+                <option value="">Pilih periode</option>
+                {periods.map((p) => (
+                  <option key={p.id} value={p.label}>{p.label} {p.is_current ? '(Saat Ini)' : ''}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Foto <span className="text-gray-400 text-xs">(maks 2MB)</span></label>
