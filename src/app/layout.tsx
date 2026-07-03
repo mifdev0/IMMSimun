@@ -20,6 +20,7 @@ const anton = Anton({
 export const metadata: Metadata = {
   title: "PK IMM Siti Munjiyah FKIP UMS",
   description: "Website resmi Pimpinan Komisariat IMM Siti Munjiyah FKIP Universitas Muhammadiyah Surakarta.",
+  icons: { icon: "/logoImmSimun.png", apple: "/logoImmSimun.png" },
   openGraph: {
     title: "PK IMM Siti Munjiyah FKIP UMS",
     description: "Mewujudkan kader pendidik yang unggul dalam intelektualitas, humanitas, dan religiusitas.",
