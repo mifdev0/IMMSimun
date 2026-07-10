@@ -6,44 +6,39 @@ import { articles as staticArticles, galeri as staticGaleri, pengurus as staticP
 
 const supabase = createClient()
 
-// In-memory + localStorage cache (stale-while-revalidate)
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+// In-memory cache (untuk data heavy seperti artikel/galeri/struktural yg mengandung base64)
 const memCache = new Map<string, any>()
-function lsKey(key: string) { return `imm_cache_${key}` }
 
 function cached<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
-  // 1. Return memory cache if available
   if (memCache.has(key)) return Promise.resolve(memCache.get(key) as T)
+  return fetcher().then(data => { memCache.set(key, data); return data })
+}
 
-  const ls = lsKey(key)
+// In-memory + localStorage cache untuk data ringan (settings, kategori, periode, prestasi)
+const LS_TTL = 5 * 60 * 1000
+function lsKey(key: string) { return `imm_${key}` }
 
-  // 2. Try localStorage (stale-while-revalidate)
+function cachedPersist<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
+  if (memCache.has(key)) return Promise.resolve(memCache.get(key) as T)
   if (typeof localStorage !== 'undefined') {
     try {
-      const stored = localStorage.getItem(ls)
+      const stored = localStorage.getItem(lsKey(key))
       if (stored) {
         const parsed = JSON.parse(stored)
-        const notExpired = Date.now() - parsed.timestamp < CACHE_TTL
+        const fresh = Date.now() - parsed.ts < LS_TTL
         memCache.set(key, parsed.data)
-        if (notExpired) {
-          // Return cached immediately, revalidate in background
-          fetcher().then(fresh => {
-            memCache.set(key, fresh)
-            if (typeof localStorage !== 'undefined')
-              try { localStorage.setItem(ls, JSON.stringify({ data: fresh, timestamp: Date.now() })) } catch {}
-          }).catch(() => {})
-          return Promise.resolve(parsed.data) as Promise<T>
+        if (fresh) {
+          fetcher().then(d => { memCache.set(key, d); try { localStorage.setItem(lsKey(key), JSON.stringify({ data: d, ts: Date.now() })) } catch {} }).catch(() => {})
+          return Promise.resolve(parsed.data as T)
         }
       }
     } catch {}
   }
-
-  // 3. Fetch fresh
-  return fetcher().then(data => {
-    memCache.set(key, data)
+  return fetcher().then(d => {
+    memCache.set(key, d)
     if (typeof localStorage !== 'undefined')
-      try { localStorage.setItem(ls, JSON.stringify({ data, timestamp: Date.now() })) } catch {}
-    return data
+      try { localStorage.setItem(lsKey(key), JSON.stringify({ data: d, ts: Date.now() })) } catch {}
+    return d
   })
 }
 
@@ -63,6 +58,11 @@ export async function getArticles(): Promise<Artikel[]> {
     } catch {}
     return staticArticles
   })
+}
+
+export async function getArticleBySlug(slug: string): Promise<Artikel | null> {
+  const all = await getArticles()
+  return all.find(a => a.slug === slug) || null
 }
 
 export async function saveArticle(article: Artikel) {
@@ -133,7 +133,7 @@ export async function deletePengurus(id: string) {
 // --- PRESTASI ---
 
 export async function getPrestasi(): Promise<Prestasi[]> {
-  return cached('prestasi', async () => {
+  return cachedPersist('prestasi', async () => {
     try {
       const { data } = await supabase.from('prestasi').select('*').order('order', { ascending: true })
       if (data && data.length > 0) return data as Prestasi[]
@@ -184,7 +184,7 @@ const defaultSettings: SiteSettings = {
 }
 
 export async function getSettings(): Promise<SiteSettings> {
-  return cached('settings', async () => {
+  return cachedPersist('settings', async () => {
     try {
       const { data } = await supabase.from('site_settings').select('*').single()
       if (data) return data as SiteSettings
@@ -202,7 +202,7 @@ export async function saveSettings(s: SiteSettings) {
 // --- KATEGORI ---
 export async function getKategoris(type: 'artikel' | 'galeri'): Promise<Kategori[]> {
   const key = 'kategori_' + type
-  return cached(key, async () => {
+  return cachedPersist(key, async () => {
     try {
       const { data } = await supabase.from('kategori').select('*').eq('type', type).order('order')
       if (data && data.length > 0) return data as Kategori[]
@@ -229,7 +229,7 @@ export async function deleteKategori(id: string) {
 
 // --- PERIODE ---
 export async function getPeriodes(): Promise<Periode[]> {
-  return cached('periode', async () => {
+  return cachedPersist('periode', async () => {
     try {
       const { data } = await supabase.from('periode').select('*').order('label', { ascending: false })
       if (data && data.length > 0) return data as Periode[]
