@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getArticles } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { SkeletonDetail } from '@/components/Skeleton'
 
 export default function DetailArtikel() {
   const { slug } = useParams<{ slug: string }>()
@@ -29,7 +30,7 @@ export default function DetailArtikel() {
     })
   }, [slug])
 
-  if (loading) return <div className="py-20 text-center min-h-screen flex items-center justify-center"><p className="text-gray-muted">Memuat...</p></div>
+  if (loading) return <div className="py-20 min-h-screen bg-[#fff8f0] flex items-center justify-center"><div className="max-w-3xl w-full px-8"><SkeletonDetail /></div></div>
 
   if (!article) {
     return (

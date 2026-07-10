@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 import { getSettings } from '@/lib/store'
 import { Phone, MapPin, Mail, Globe } from 'lucide-react'
 import Link from 'next/link'
+import { SkeletonLine } from '@/components/Skeleton'
 
 export default function Kontak() {
   const [settings, setSettings] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getSettings().then(setSettings)
+    getSettings().finally(() => setLoading(false)).then(setSettings)
   }, [])
 
   const kontakData = [
@@ -46,6 +48,30 @@ export default function Kontak() {
       action: { label: settings?.kontak_email || 'immsitimunjiyah@ums.ac.id', href: `mailto:${settings?.kontak_email || 'immsitimunjiyah@ums.ac.id'}`, external: false },
     },
   ]
+
+  if (loading) {
+    return (
+      <div className="pb-20 bg-white min-h-screen">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-center pt-12 mb-12">
+            <SkeletonLine className="h-4 w-24 mx-auto mb-4" />
+            <SkeletonLine className="h-10 w-64 mx-auto mb-3" />
+            <SkeletonLine className="h-4 w-80 mx-auto" />
+          </div>
+          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+                <SkeletonLine className="h-14 w-14 rounded-full mb-5" />
+                <SkeletonLine className="h-5 w-32 mb-2" />
+                <SkeletonLine className="h-4 w-full mb-2" />
+                <SkeletonLine className="h-4 w-3/4" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="pb-20 bg-white min-h-screen">

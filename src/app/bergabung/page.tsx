@@ -3,18 +3,34 @@
 import { useState, useEffect } from 'react'
 import { getSettings } from '@/lib/store'
 import { ExternalLink } from 'lucide-react'
+import { SkeletonLine } from '@/components/Skeleton'
 
 export default function Bergabung() {
   const [settings, setSettings] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getSettings().then(setSettings)
+    getSettings().finally(() => setLoading(false)).then(setSettings)
   }, [])
 
   const ctaText = settings?.cta_text || 'Siap Bergabung? Jadilah bagian dari generasi pendidik yang berkarakter, cerdas, dan religius.'
   const ctaLink = settings?.cta_link || '#'
   const ctaLabel = settings?.cta_link_label || 'Daftar Sekarang'
   const isExternal = ctaLink.startsWith('http')
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#fff8f0] to-white px-6">
+        <div className="text-center">
+          <SkeletonLine className="h-20 w-20 rounded-full mx-auto mb-8" />
+          <SkeletonLine className="h-10 w-96 mx-auto mb-6" />
+          <SkeletonLine className="h-4 w-80 mx-auto mb-2" />
+          <SkeletonLine className="h-4 w-64 mx-auto mb-8" />
+          <SkeletonLine className="h-14 w-44 rounded-full mx-auto" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#fff8f0] to-white px-6">

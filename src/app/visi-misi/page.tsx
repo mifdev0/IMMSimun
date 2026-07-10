@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getSettings } from '@/lib/store'
 import { BookOpen, Heart, Clock } from 'lucide-react'
+import { SkeletonLine } from '@/components/Skeleton'
 
 const defaultMisiData = [
   { num: '1', title: 'Internalisasi Nilai', desc: 'Menguatkan internalisasi nilai-nilai Al-Islam dan Kemuhammadiyahan dalam setiap langkah organisasi dan pribadi kader.' },
@@ -19,9 +20,10 @@ const pilarData = [
 
 export default function VisiMisi() {
   const [settings, setSettings] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getSettings().then(setSettings)
+    getSettings().finally(() => setLoading(false)).then(setSettings)
   }, [])
 
   let misiData = defaultMisiData
@@ -36,6 +38,24 @@ export default function VisiMisi() {
         }))
       }
     } catch {}
+  }
+
+  if (loading) {
+    return (
+      <div className="pb-20 bg-[#fff8f0] min-h-screen">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-center pt-12 mb-12">
+            <SkeletonLine className="h-4 w-24 mx-auto mb-4" />
+            <SkeletonLine className="h-10 w-80 mx-auto" />
+          </div>
+          <div className="max-w-4xl mx-auto space-y-10">
+            <SkeletonLine className="h-48 rounded-[2rem]" />
+            <SkeletonLine className="h-64 rounded-2xl" />
+            <SkeletonLine className="h-48 rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

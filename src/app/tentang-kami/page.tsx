@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getSettings } from '@/lib/store'
 import { BookOpen, Heart, Clock } from 'lucide-react'
+import { SkeletonLine, SkeletonImage } from '@/components/Skeleton'
 
 const pilarData = [
   {
@@ -24,10 +25,35 @@ const pilarData = [
 
 export default function TentangKami() {
   const [settings, setSettings] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getSettings().then(setSettings)
+    getSettings().finally(() => setLoading(false)).then(setSettings)
   }, [])
+
+  if (loading) {
+    return (
+      <div className="pb-20 bg-[#fff8f0] min-h-screen">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-center pt-12 mb-12">
+            <SkeletonLine className="h-4 w-24 mx-auto mb-4" />
+            <SkeletonLine className="h-10 w-80 mx-auto" />
+          </div>
+          <div className="max-w-4xl mx-auto space-y-10">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+                <SkeletonLine className="h-6 w-48 mb-4" />
+                <SkeletonImage className="w-full h-48 rounded-xl mb-4" />
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <SkeletonLine key={j} className="h-4 w-full mb-2" />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="pb-20 bg-[#fff8f0] relative overflow-hidden min-h-screen">

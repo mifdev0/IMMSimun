@@ -6,30 +6,49 @@ import { getArticles, getKategoris } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
 import Pagination from '@/components/Pagination'
+import { SkeletonGrid, SkeletonLine } from '@/components/Skeleton'
 
 export default function ArtikelPage() {
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [articles, setArticles] = useState<any[]>([])
   const [categories, setCategories] = useState<string[]>(['Semua'])
   const [page, setPage] = useState(1)
+  const [loading, setLoading] = useState(true)
   const PER_PAGE = 9
 
   useEffect(() => {
-    getArticles().then((all) =>
-      setArticles(
-        all.filter((a) => a.status === 'published')
-          .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
-      )
-    )
-    getKategoris('artikel').then((kats) =>
-      setCategories(['Semua', ...kats.map((k) => k.name)])
-    )
+    Promise.allSettled([
+      getArticles().then((all) =>
+        setArticles(
+          all.filter((a) => a.status === 'published')
+            .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+        )
+      ),
+      getKategoris('artikel').then((kats) =>
+        setCategories(['Semua', ...kats.map((k) => k.name)])
+      ),
+    ]).finally(() => setLoading(false))
   }, [])
 
   const filtered = activeCategory === 'Semua'
     ? articles
     : articles.filter((a) => a.category === activeCategory)
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+
+  if (loading) {
+    return (
+      <div className="pb-20 bg-white min-h-screen">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-center pt-12 mb-10">
+            <SkeletonLine className="h-4 w-24 mx-auto mb-4" />
+            <SkeletonLine className="h-10 w-64 mx-auto mb-3" />
+            <SkeletonLine className="h-4 w-80 mx-auto" />
+          </div>
+          <SkeletonGrid count={6} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="pb-20 bg-white min-h-screen">

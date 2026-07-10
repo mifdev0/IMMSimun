@@ -6,13 +6,52 @@ import { articles as staticArticles, galeri as staticGaleri, pengurus as staticP
 
 const supabase = createClient()
 
-// Simple in-memory cache
-const cache = new Map<string, any>()
+// In-memory + localStorage cache (stale-while-revalidate)
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+const memCache = new Map<string, any>()
+function lsKey(key: string) { return `imm_cache_${key}` }
+
 function cached<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
-  if (cache.has(key)) return Promise.resolve(cache.get(key) as T)
-  return fetcher().then((data) => { cache.set(key, data); return data })
+  // 1. Return memory cache if available
+  if (memCache.has(key)) return Promise.resolve(memCache.get(key) as T)
+
+  const ls = lsKey(key)
+
+  // 2. Try localStorage (stale-while-revalidate)
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(ls)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        const notExpired = Date.now() - parsed.timestamp < CACHE_TTL
+        memCache.set(key, parsed.data)
+        if (notExpired) {
+          // Return cached immediately, revalidate in background
+          fetcher().then(fresh => {
+            memCache.set(key, fresh)
+            if (typeof localStorage !== 'undefined')
+              try { localStorage.setItem(ls, JSON.stringify({ data: fresh, timestamp: Date.now() })) } catch {}
+          }).catch(() => {})
+          return Promise.resolve(parsed.data) as Promise<T>
+        }
+      }
+    } catch {}
+  }
+
+  // 3. Fetch fresh
+  return fetcher().then(data => {
+    memCache.set(key, data)
+    if (typeof localStorage !== 'undefined')
+      try { localStorage.setItem(ls, JSON.stringify({ data, timestamp: Date.now() })) } catch {}
+    return data
+  })
 }
-function invalidate(key: string) { cache.delete(key) }
+
+function invalidate(key: string) {
+  memCache.delete(key)
+  if (typeof localStorage !== 'undefined')
+    try { localStorage.removeItem(lsKey(key)) } catch {}
+}
 
 // --- ARTICLES ---
 

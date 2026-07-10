@@ -3,24 +3,49 @@
 import { useState, useEffect } from 'react'
 import { getGaleri, getKategoris } from '@/lib/store'
 import { ImageIcon, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { SkeletonImage, SkeletonLine } from '@/components/Skeleton'
 
 export default function GaleriPage() {
   const [activeCategory, setActiveCategory] = useState('Semua')
   const [galeri, setGaleri] = useState<any[]>([])
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [categories, setCategories] = useState<string[]>(['Semua'])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getGaleri().then(setGaleri)
-    getKategoris('galeri').then((kats) =>
-      setCategories(['Semua', ...kats.map((k) => k.name)])
-    )
+    Promise.allSettled([
+      getGaleri().then(setGaleri),
+      getKategoris('galeri').then((kats) =>
+        setCategories(['Semua', ...kats.map((k) => k.name)])
+      ),
+    ]).finally(() => setLoading(false))
   }, [])
 
   const filtered = activeCategory === 'Semua' ? galeri : galeri.filter((f: any) => f.category === activeCategory)
   const selectedFoto = selectedIndex !== null ? filtered[selectedIndex] : null
 
   const heights = ['h-48 md:h-56', 'h-56 md:h-72', 'h-40 md:h-48', 'h-52 md:h-64', 'h-44 md:h-52']
+
+  if (loading) {
+    return (
+      <div className="pb-20 bg-[#fff8f0] min-h-screen">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-center pt-12 mb-10">
+            <SkeletonLine className="h-4 w-24 mx-auto mb-4" />
+            <SkeletonLine className="h-10 w-64 mx-auto mb-3" />
+            <SkeletonLine className="h-4 w-80 mx-auto" />
+          </div>
+          <div className="columns-2 md:columns-3 gap-4 space-y-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="break-inside-avoid rounded-2xl overflow-hidden">
+                <SkeletonImage className={`w-full ${heights[i % heights.length]}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="pb-20 bg-[#fff8f0] min-h-screen">

@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen, Heart, Clock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getArticles, getPrestasi, getSettings } from '@/lib/store'
 import { formatDate } from '@/lib/utils'
+import { SkeletonHero, SkeletonCard, SkeletonLine } from '@/components/Skeleton'
 
 const pilarIMM = [
   { icon: BookOpen, label: 'Intelektualitas', desc: 'Mengembangkan daya pikir kritis, ilmiah, dan inovatif.' },
@@ -23,17 +24,20 @@ export default function Beranda() {
   const [latestArticles, setLatestArticles] = useState<any[]>([])
   const [achievements, setAchievements] = useState<any[]>([])
   const [settings, setSettings] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getArticles().then((all) =>
-      setLatestArticles(
-        all.filter((a) => a.status === 'published')
-          .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
-          .slice(0, 3)
-      )
-    )
-    getPrestasi().then(setAchievements)
-    getSettings().then(setSettings)
+    Promise.allSettled([
+      getArticles().then((all) =>
+        setLatestArticles(
+          all.filter((a) => a.status === 'published')
+            .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+            .slice(0, 3)
+        )
+      ),
+      getPrestasi().then(setAchievements),
+      getSettings().then(setSettings),
+    ]).finally(() => setLoading(false))
   }, [])
 
   let missionItems = defaultMisiData
@@ -51,6 +55,20 @@ export default function Beranda() {
   }
 
   const ctaIsExternal = settings?.cta_link && settings.cta_link.startsWith('http')
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <SkeletonHero />
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16 py-24 space-y-8">
+          <SkeletonLine className="h-8 w-1/3 mx-auto mb-12" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

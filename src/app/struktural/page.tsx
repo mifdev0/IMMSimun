@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getPengurus, getPeriodes } from '@/lib/store'
 import { BIDANG_LIST, BIDANG_SHORT, BIDANG_DESC } from '@/lib/bidang'
+import { SkeletonImage, SkeletonLine, SkeletonCard } from '@/components/Skeleton'
 
 type GroupKey = 'pimpinan' | 'bidang' | 'unit'
 
@@ -39,21 +40,51 @@ export default function Struktural() {
   const [all, setAll] = useState<any[]>([])
   const [periods, setPeriods] = useState<any[]>([])
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getPengurus().then(setAll)
-    getPeriodes().then((p) => {
-      setPeriods(p)
-      const current = p.find((per) => per.is_current)
-      if (current) setSelectedPeriodId(current.id)
-      else if (p.length > 0) setSelectedPeriodId(p[0].id)
-    })
+    Promise.allSettled([
+      getPengurus().then(setAll),
+      getPeriodes().then((p) => {
+        setPeriods(p)
+        const current = p.find((per) => per.is_current)
+        if (current) setSelectedPeriodId(current.id)
+        else if (p.length > 0) setSelectedPeriodId(p[0].id)
+      }),
+    ]).finally(() => setLoading(false))
   }, [])
 
   const selectedPeriod = periods.find((p) => p.id === selectedPeriodId)
   const selectedLabel = selectedPeriod?.label || ''
   const filtered = all.filter((p) => p.period === selectedLabel)
   const isNonCurrent = selectedPeriod && !selectedPeriod.is_current
+
+  if (loading) {
+    return (
+      <div className="pb-20 bg-white min-h-screen">
+        <div className="max-w-7xl mx-auto px-8 md:px-12 lg:px-16">
+          <div className="text-center pt-12 mb-12">
+            <SkeletonLine className="h-4 w-24 mx-auto mb-4" />
+            <SkeletonLine className="h-10 w-96 mx-auto mb-3" />
+            <SkeletonLine className="h-4 w-48 mx-auto" />
+          </div>
+          <div className="flex justify-center gap-4 mb-10">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonLine key={i} className="h-10 w-32" />
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-center gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center w-[200px]">
+                <SkeletonImage className="w-36 h-36 md:w-44 md:h-44 rounded-full" />
+                <SkeletonLine className="h-4 w-24 mt-4" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (activeTab === 'pimpinan') {
     const pimpinan = filtered.filter((p) => p.group === 'pimpinan').sort((a, b) => a.order - b.order)
