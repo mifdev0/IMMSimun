@@ -27,17 +27,15 @@ export default function Beranda() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.allSettled([
-      getArticles().then((all) =>
-        setLatestArticles(
-          all.filter((a) => a.status === 'published')
-            .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
-            .slice(0, 3)
-        )
-      ),
-      getPrestasi().then(setAchievements),
-      getSettings().then(setSettings),
-    ]).finally(() => setLoading(false))
+    getSettings().then(s => { setSettings(s); setLoading(false) })
+    getPrestasi().then(setAchievements)
+    getArticles().then((all) =>
+      setLatestArticles(
+        all.filter((a) => a.status === 'published')
+          .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime())
+          .slice(0, 3)
+      )
+    )
   }, [])
 
   let missionItems = defaultMisiData

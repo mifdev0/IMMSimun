@@ -51,7 +51,7 @@ function invalidate(key: string) {
 // --- ARTICLES ---
 
 export async function getArticles(): Promise<Artikel[]> {
-  return cached('articles', async () => {
+  return cachedPersist('articles', async () => {
     try {
       const { data } = await supabase.from('articles').select('*, images:article_images(*)').order('published_at', { ascending: false })
       if (data && data.length > 0) return data as Artikel[]
